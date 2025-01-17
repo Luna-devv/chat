@@ -1,0 +1,113 @@
+package main
+
+import (
+	"encoding/json"
+	"fmt"
+	"log"
+	"net/http"
+	"sync"
+	"time"
+
+	"github.com/go-redis/redis/v8"
+	"github.com/gorilla/websocket"
+	"golang.org/x/net/context"
+)
+
+var (
+	redisClient = redis.NewClient(&redis.Options{
+		Addr: "localhost:6379",
+	})
+	upgrader = websocket.Upgrader{}
+)
+
+var clients = struct {
+	sync.RWMutex
+	connected map[string]*Client
+}{connected: make(map[string]*Client)}
+
+func main() {
+	http.HandleFunc("/", handleWebSocket)
+
+	go startRedisSubscription()
+
+	log.Println("WebSocket server started on :8080")
+	log.Fatal(http.ListenAndServe(":8080", nil))
+}
+
+func handleWebSocket(w http.ResponseWriter, r *http.Request) {
+	conn, err := upgrader.Upgrade(w, r, nil)
+	if err != nil {
+		log.Println("WebSocket upgrade failed:", err)
+		return
+	}
+
+	// actually authorize the user
+	userID := r.URL.Query().Get("user_id")
+	guildIDs := r.URL.Query()["guild_ids"]
+	conID := fmt.Sprintf("%s", time.Now().UnixMilli());
+
+	client := &Client{
+		Conn:     conn,
+		UserID:   userID,
+		GuildIDs: make(map[string]struct{}),
+	}
+
+	for _, gid := range guildIDs {
+		client.GuildIDs[gid] = struct{}{}
+	}
+
+	clients.Lock()
+	clients.connected[conID] = client
+	clients.Unlock()
+
+	log.Printf("User %s connected (con: %s)", userID, conID)
+	defer disconnectClient(conID)
+
+	for {
+		_, _, err := conn.ReadMessage()
+		if err != nil {
+			log.Println("Connection closed for user:", userID)
+			break
+		}
+	}
+}
+
+func startRedisSubscription() {
+	ctx := context.Background()
+	pubsub := redisClient.PSubscribe(ctx, "guild:*", "user:*")
+
+	ch := pubsub.Channel()
+	for msg := range ch {
+		handleRedisMessage(msg)
+	}
+}
+
+func handleRedisMessage(msg *redis.Message) {
+	var event Event
+	err := json.Unmarshal([]byte(msg.Payload), &event)
+	if err != nil {
+		log.Println("Failed to parse event:", err)
+		return
+	}
+
+	switch event.Type {
+		case "guild_member_create":
+			userID := event.Data.(map[string]interface{})["userId"].(string)
+			guildID := event.Data.(map[string]interface{})["guildId"].(string)
+			addMemberToGuild(userID, guildID)
+			broadcastToGuild(event.Data.(map[string]interface{})["guild_id"].(string), event)
+
+		case "guild_member_remove":
+			userID := event.Data.(map[string]interface{})["userId"].(string)
+			guildID := event.Data.(map[string]interface{})["guildId"].(string)
+			removeMemberFromGuild(userID, guildID)
+			broadcastToGuild(event.Data.(map[string]interface{})["guild_id"].(string), event)
+
+		default:
+			if event.Data.(map[string]interface{})["guild_id"] == nil {
+				broadcastToUser(event.Data.(map[string]interface{})["user_id"].(string), event)
+			} else {
+				broadcastToGuild(event.Data.(map[string]interface{})["guild_id"].(string), event)
+			}
+	}
+}
