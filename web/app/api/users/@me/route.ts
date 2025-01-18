@@ -1,15 +1,14 @@
 import type { LoaderFunctionArgs } from "@remix-run/node";
-import { auth, hashPassword } from "utils/auth";
-
 import { HttpErrorCode } from "constants/http-error";
 import { db } from "db";
 import { APIPostUserBodySchema } from "types/users";
+import { auth, hashPassword } from "utils/auth";
 import { verifyCaptchaKey } from "utils/captcha";
 import { httpError } from "utils/http-error";
 import { signSession } from "utils/jwt";
 
 export async function loader({ request }: LoaderFunctionArgs) {
-    if (request.method === "POST") return createUser({ request })
+    if (request.method === "POST") return createUser({ request });
 
     const user = await auth(request.headers.get("authorization"));
     if (!user) throw httpError(HttpErrorCode.InvalidAuthorization);
@@ -49,5 +48,5 @@ async function createUser({ request }: Pick<LoaderFunctionArgs, "request">) {
                 "Set-Cookie": "session=" + signSession({ id: user.id })
             }
         }
-    )
+    );
 }
