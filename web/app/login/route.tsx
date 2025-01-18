@@ -1,12 +1,14 @@
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Turnstile } from '@marsidev/react-turnstile';
+import { Button } from "components/ui/button";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "components/ui/form";
 import { Input } from "components/ui/input";
 import { Tabs, TabsList, TabsTrigger } from "components/ui/tabs";
 import { Config } from "constants/config";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { APIPostUserBody, APIPostUserBodySchema } from "types/users";
-import { Button } from "~/components/ui/button";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "~/components/ui/form";
+import { APIPostAuthRegisterBody, APIPostAuthRegisterBodySchema } from "types/auth";
+import { request } from "~/lib/api";
 
 enum Type {
     Login = "login",
@@ -22,19 +24,32 @@ const fields = [
 export default function Register() {
     const [type, setType] = useState<Type>(Type.Login);
 
-    const form = useForm<APIPostUserBody>({
-        resolver: zodResolver(APIPostUserBodySchema),
+    const form = useForm<APIPostAuthRegisterBody>({
+        resolver: zodResolver(APIPostAuthRegisterBodySchema),
         defaultValues: {
             email: "",
             username: "",
-            password: ""
+            password: "",
+            captcha_key: ""
         }
     });
 
-    console.log(form)
+    const email = form.watch("email");
+    const username = form.watch("username");
+    const password = form.watch("password");
+    const captchaKey = form.watch("captcha_key");
 
-    function onSubmit(data: APIPostUserBody) {
-        console.log(data)
+    const canContinue = email && password && (type === Type.Create ? username : true);
+
+    async function onSubmit(data: APIPostAuthRegisterBody) {
+        const res = await request<{ a: string }>("post", "/auth/register", data);
+
+        if ("message" in res) {
+            form.setError("password", { message: res.message });
+            return;
+        }
+
+        console.log(res)
     }
 
     return (
@@ -44,7 +59,7 @@ export default function Register() {
                 <p className="text-sm text-muted-foreground">Tell us who you are to start chatting!</p>
 
                 <Tabs
-                    defaultValue="account"
+                    defaultValue={Type.Login}
                     className="w-full mt-4 mb-2"
                     onValueChange={(value) => setType(value as Type)}
                 >
@@ -62,6 +77,7 @@ export default function Register() {
                         {fields.map((id) =>
                            (type === Type.Login && id === "username") ? null : (
                             <FormField
+                                key={id}
                                 control={form.control}
                                 name={id}
                                 render={({ field }) => (
@@ -70,22 +86,39 @@ export default function Register() {
                                             {id.replace(/^\w/, (char) => char.toUpperCase())}
                                         </FormLabel>
                                         <FormControl>
-                                            <Input type={id} {...field} />
+                                            <Input
+                                                type={id}
+                                                autoComplete={id === "password"
+                                                    ? (type === Type.Login ? "current-password" : "new-password")
+                                                    : id
+                                                }
+                                                autoFocus={id === "email"}
+                                                {...field}
+                                            />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
                                 )}
                             />
                         ))}
+                        <div className="h-2" />
 
-                        {/* email && password && (type === Type.Create ? username : true) &&
+                        {(canContinue || captchaKey) &&
                             <Turnstile
-                                className="!mt-4 w-full"
+                            className="!mb-2"
                                 siteKey={Config.captcha_site_key}
+                                options={{
+                                    size: "flexible",
+                                    theme: "dark"
+                                }}
+                                onSuccess={(key) => form.setValue("captcha_key", key)}
                             />
-                        */}
+                        }
 
-                        <Button type="submit">
+                        <Button
+                            type="submit"
+                            disabled={!canContinue || !captchaKey}
+                        >
                             Submit
                         </Button>
                     </form>

@@ -1,9 +1,8 @@
+import type { HttpErrorEntry } from "constants/http-error";
 import { HttpErrorCode, HttpErrorMessage } from "constants/http-error";
 import type { ZodError, ZodIssue } from "zod";
 
-type HttpErrorEntry = typeof HttpErrorCode[keyof typeof HttpErrorCode];
-
-export function httpError(code: HttpErrorEntry, message?: string | ZodError) {
+export function httpError(code: HttpErrorEntry = HttpErrorCode.ServerError, message?: string | ZodError) {
     return Response.json({
         code,
         message: message

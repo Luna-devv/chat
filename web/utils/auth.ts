@@ -12,6 +12,10 @@ export async function auth(jwt: string | null) {
     return getUser(data.id);
 }
 
+export function via(request: Request) {
+    return request.headers.get("Cookie")?.split("session=")[1]?.split(";")[0] || null;
+}
+
 export function hashPassword(password: string) {
     return bcrypt.hash(password, 10);
 }

@@ -12,7 +12,7 @@ export function signSession(data: UserJWTPayload) {
 
 export async function verifySession(token: string): Promise<UserJWTPayload> {
     return new Promise((resolve, reject) => {
-        jwt.verify(token, secret, (err, decoded)=> {
+        jwt.verify(token, secret, (err, decoded) => {
             if (err) reject(err);
             resolve(decoded as UserJWTPayload);
         });
