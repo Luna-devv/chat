@@ -1,4 +1,3 @@
-import { Config } from "~/constants/config";
 
 const API_CLOUDFLARE_TURNSILE_SITEVERIFY = "https://challenges.cloudflare.com/turnstile/v0/siteverify" as const;
 
@@ -9,7 +8,7 @@ interface CloudflareTurnsileSiteverifyResponse {
 
 export async function verifyCaptchaKey(key: string, ip: string) {
     const formData = new FormData();
-    formData.append("secret", Config.captcha_secret);
+    formData.append("secret", process.env.CAPTCHA_SECRET!);
     formData.append("response", key);
     formData.append("remoteip", ip);
 

@@ -1,12 +1,10 @@
-import { Config } from "constants/config";
 import jwt from "jsonwebtoken";
 import { createHash } from "node:crypto";
 import type { UserJWTPayload } from "types/users";
 
 const secret = createHash("sha256")
-    .update(Config.secret)
+    .update(process.env.SECRET!)
     .digest("hex");
-console.log(secret);
 
 export function signSession(data: UserJWTPayload) {
     return jwt.sign(data, secret);
