@@ -1,5 +1,5 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs";
-import { Config } from "~/constants/config";
+import { Config } from "constants/config";
 
 export default function Register() {
 

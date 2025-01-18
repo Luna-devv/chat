@@ -1,6 +1,6 @@
-import type { LoaderFunctionArgs } from "@remix-run/node";
 import { HttpErrorCode } from "constants/http-error";
 import { db } from "db";
+import type { LoaderFunctionArgs } from "react-router";
 import { APIPostUserBodySchema } from "types/users";
 import { auth, hashPassword } from "utils/auth";
 import { verifyCaptchaKey } from "utils/captcha";
