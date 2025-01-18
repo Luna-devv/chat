@@ -6,5 +6,5 @@ export function getUrlFromFilename(filename: string) {
         else path += `/${param}`;
     }
 
-    return path.replace(/\/(route)?\.tsx?$/, "").slice(1);
+    return path.replace(/(\/route)?\.tsx?$/, "").slice(1);
 }

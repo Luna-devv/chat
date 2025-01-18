@@ -1,4 +1,3 @@
-
 const API_CLOUDFLARE_TURNSILE_SITEVERIFY = "https://challenges.cloudflare.com/turnstile/v0/siteverify" as const;
 
 interface CloudflareTurnsileSiteverifyResponse {
