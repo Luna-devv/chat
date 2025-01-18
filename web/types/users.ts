@@ -1,4 +1,7 @@
 import type { ColumnType, Generated, Selectable } from "kysely";
+import { z } from "zod";
+
+import { Config } from "~/constants/config";
 
 export interface UserTable {
     id: Generated<number>;
@@ -28,3 +31,13 @@ export enum UserFlags {
 
     Staff = 1 << 6
 }
+
+export const APIPostUserBodySchema = z.object({
+    email: z.string().email().max(64),
+    username: z.string().regex(Config.username_constraint),
+    password: z.string().regex(Config.password_constraint),
+
+    captcha_key: z.string().min(16).max(64)
+});
+
+export type APIPostUserBody = z.infer<typeof APIPostUserBodySchema>;
