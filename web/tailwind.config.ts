@@ -1,8 +1,12 @@
 import type { Config } from "tailwindcss";
+import twa from "tailwindcss-animate";
 
 export default {
     darkMode: ["class"],
-    content: ["./app/**/{**,.client,.server}/**/*.{js,jsx,ts,tsx}"],
+    content: [
+        "app/**/*.{ts,tsx}",
+        "components/**/*.{ts,tsx}"
+    ],
     theme: {
         extend: {
             fontFamily: {
@@ -66,5 +70,5 @@ export default {
             }
         }
     },
-    plugins: [require("tailwindcss-animate")]
+    plugins: [twa]
 } satisfies Config;
