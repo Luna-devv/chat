@@ -13,7 +13,7 @@ export const cacheOptions = {
 export function useApiGet<T>(route: RouteLike) {
     const { data, isLoading, error } = useQuery(
         route,
-        () => request("get", route),
+        () => request<T>("get", route),
         cacheOptions
     );
 

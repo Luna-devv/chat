@@ -12,6 +12,7 @@ export default tseslint.config(
     ...tseslint.configs.recommended,
     {
         files: ["**/*.mjs", "**/*.ts"],
+        ignores: [".react-router/**/*", "eslint.config.mjs"],
         languageOptions: {
             parser: tseslint.parser,
             parserOptions: {
