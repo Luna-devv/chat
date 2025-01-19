@@ -2,15 +2,15 @@ import { HttpErrorCode } from "constants/http-error";
 import { auth, via } from "utils/auth";
 import { httpError } from "utils/http-error";
 
-import { LoaderFunctionArgs } from "react-router";
+import { defineEndpoint } from "~/utils/define/endpoint";
 
-export async function loader({ request }: LoaderFunctionArgs) {
+export default defineEndpoint(async ({ request }) => {
     const user = await auth(via(request));
-    if (!user) throw httpError(HttpErrorCode.InvalidAuthorization);
+    if (!user) return httpError(HttpErrorCode.InvalidAuthorization);
 
     switch (request.method) {
         case "GET": return Response.json(user);
     }
 
-    throw httpError(HttpErrorCode.NotFound);
-}
+    return httpError(HttpErrorCode.NotFound);
+});

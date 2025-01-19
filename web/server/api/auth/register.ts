@@ -5,23 +5,22 @@ import { db } from "~/db";
 import { APIPostAuthRegisterBodySchema } from "~/types/auth";
 import { hashPassword } from "~/utils/auth";
 import { verifyCaptchaKey } from "~/utils/captcha";
+import { defineEndpoint } from "~/utils/define/endpoint";
 import { httpError } from "~/utils/http-error";
 import { signSession } from "~/utils/jwt";
 
-import type { Route } from ".react-router/types/app/api/auth/+types/register";
-
-export async function action({ request }: Route.ActionArgs) {
+export default defineEndpoint(async ({ request }) => {
     if (request.method === "POST") return createUser({ request });
-    throw httpError(HttpErrorCode.NotFound);
-}
+    return httpError(HttpErrorCode.NotFound);
+});
 
 async function createUser({ request }: Pick<LoaderFunctionArgs, "request">) {
     const { data, success, error } = APIPostAuthRegisterBodySchema.safeParse(await request.json());
-    if (!success) throw httpError(HttpErrorCode.BadRequest, error);
+    if (!success) return httpError(HttpErrorCode.BadRequest, error);
 
     const ip = request.headers.get("CF-Connecting-IP")!;
     const captcha = await verifyCaptchaKey(data.captcha_key, ip);
-    if (!captcha) throw httpError(HttpErrorCode.InvalidCaptcha);
+    if (!captcha) return httpError(HttpErrorCode.InvalidCaptcha);
 
     const usernameClaimed = await db
         .selectFrom("users")
@@ -29,7 +28,7 @@ async function createUser({ request }: Pick<LoaderFunctionArgs, "request">) {
         .where("username", "=", data.username)
         .execute();
 
-    if (usernameClaimed.length !== 0) throw httpError(HttpErrorCode.UsernameAlreadyClaimed);
+    if (usernameClaimed.length !== 0) return httpError(HttpErrorCode.UsernameAlreadyClaimed);
 
     const user = await db
         .insertInto("users")
@@ -42,7 +41,7 @@ async function createUser({ request }: Pick<LoaderFunctionArgs, "request">) {
         .executeTakeFirstOrThrow()
         .catch(() => null);
 
-    if (!user) throw httpError();
+    if (!user) return httpError();
 
     return Response.json(
         user,

@@ -5,10 +5,11 @@
   "scripts": {
     "build": "react-router build",
     "dev": "react-router dev",
-    "start": "react-router-serve ./build/server/index.js",
+    "start": "tsx app.ts",
     "typecheck": "react-router typegen && tsc"
   },
   "dependencies": {
+    "@hono/node-server": "^1.13.7",
     "@hookform/resolvers": "^3.10.0",
     "@marsidev/react-turnstile": "^1.1.0",
     "@radix-ui/react-label": "^2.1.1",
@@ -20,7 +21,9 @@
     "bcrypt": "^5.1.1",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
-    "isbot": "^4.1.0",
+    "hono": "^4.6.17",
+    "hono-react-router-adapter": "^0.6.1",
+    "isbot": "^5",
     "jsonwebtoken": "^9.0.2",
     "kysely": "^0.27.5",
     "lucide-react": "^0.473.0",
@@ -58,6 +61,7 @@
     "eslint-plugin-unicorn": "^56.0.1",
     "postcss": "^8.4.38",
     "tailwindcss": "^3.4.4",
+    "tsx": "^4.19.2",
     "typescript": "^5.1.6",
     "typescript-eslint": "^8.20.0",
     "vite": "^5.1.0",
