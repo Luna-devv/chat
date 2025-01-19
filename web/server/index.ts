@@ -2,9 +2,8 @@ import { Hono } from "hono";
 import { join } from "path";
 import { walkAllDirs } from "utils/routes/walk-all-dirs";
 
-import { HttpErrorCode } from "~/constants/http-error";
+import { HttpErrorCode, HttpErrorMessage } from "~/constants/http-error";
 import type { defineEndpoint } from "~/utils/define/endpoint";
-import { httpError } from "~/utils/http-error";
 import { getUrlFromFilename } from "~/utils/routes/filename-to-url";
 
 const API_FILE_DIR = join(process.cwd(), "server", "api");
@@ -15,13 +14,23 @@ export default app;
 
 for (const filename of apiFiles) {
     const path = getUrlFromFilename(filename);
-    const { default: file } = await import(filename) as { default: ReturnType<typeof defineEndpoint>; };
-    console.log(file);
+    const { default: file } = await import(filename /* @vite-ignore */) as { default: ReturnType<typeof defineEndpoint>; };
 
-    console.log(path);
-    app.all("/api" + path, (c) => file.func({ request: c.req.raw }));
+    app.all("/api" + path, (c) => {
+        return file
+            .func({ request: c.req.raw })
+            .catch((e) => e);
+    });
 }
 
 app.all("/api/*", () => {
-    return httpError(HttpErrorCode.NotFound);
+    return Response.json(
+        {
+            code: HttpErrorCode.NotFound,
+            message: HttpErrorMessage.NotFound
+        },
+        {
+            status: HttpErrorCode.NotFound
+        }
+    );
 });

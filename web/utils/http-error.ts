@@ -3,12 +3,17 @@ import { HttpErrorCode, HttpErrorMessage } from "constants/http-error";
 import type { ZodError, ZodIssue } from "zod";
 
 export function httpError(code: HttpErrorEntry = HttpErrorCode.ServerError, message?: string | ZodError) {
-    return Response.json({
-        code,
-        message: message
-            ? (typeof message === "string" ? message : parseZodError(message))
-            : getErrorMessageByCode(code)
-    });
+    throw Response.json(
+        {
+            code,
+            message: message
+                ? (typeof message === "string" ? message : parseZodError(message))
+                : getErrorMessageByCode(code)
+        },
+        {
+            status: code
+        }
+    );
 }
 
 const httpErrorCodes = Object.entries(HttpErrorCode);
