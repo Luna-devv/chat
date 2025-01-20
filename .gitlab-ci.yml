@@ -1,0 +1,23 @@
+stages:
+  - lint
+  - typecheck
+
+default:
+  image: node:latest
+
+before_script:
+  - cd ./web
+  - npm install -g pnpm
+  - pnpm install
+
+lint:
+  stage: lint
+  script:
+    - pnpx eslint .
+  allow_failure: false
+
+typecheck:
+  stage: typecheck
+  script:
+    - pnpm typecheck
+  allow_failure: false

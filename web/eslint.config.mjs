@@ -12,7 +12,6 @@ export default tseslint.config(
     ...tseslint.configs.recommended,
     {
         files: ["**/*.mjs", "**/*.ts"],
-        ignores: [".react-router/**/*", "eslint.config.mjs"],
         languageOptions: {
             parser: tseslint.parser,
             parserOptions: {
@@ -164,5 +163,8 @@ export default tseslint.config(
             "unicorn/numeric-separators-style": ["error", { number: { minimumDigits: 0 } }],
             "unicorn/prefer-export-from": ["error"]
         }
+    },
+    {
+        ignores: [".react-router/*", "build/*", "eslint.config.mjs"]
     }
 );
