@@ -1,5 +1,3 @@
-import type { LoaderFunctionArgs } from "react-router";
-
 import { HttpErrorCode } from "~/constants/http-error";
 import { db } from "~/db";
 import { APIPostAuthRegisterBodySchema } from "~/types/auth";
@@ -10,13 +8,13 @@ import { httpError } from "~/utils/http-error";
 import { signSession } from "~/utils/jwt";
 
 export default defineEndpoint(async ({ request }) => {
-    if (request.method === "POST") return createUser({ request });
+    if (request.method === "POST") return createUser(request);
     httpError(HttpErrorCode.NotFound);
 });
 
-async function createUser({ request }: Pick<LoaderFunctionArgs, "request">) {
+async function createUser(request: Request) {
     const { data, success, error } = APIPostAuthRegisterBodySchema.safeParse(await request.json());
-    if (!success) httpError(HttpErrorCode.BadRequest, error);
+    if (!success) throw httpError(HttpErrorCode.BadRequest, error);
 
     const ip = request.headers.get("CF-Connecting-IP")!;
     const captcha = await verifyCaptchaKey(data.captcha_key, ip);
@@ -41,7 +39,7 @@ async function createUser({ request }: Pick<LoaderFunctionArgs, "request">) {
         .executeTakeFirstOrThrow()
         .catch(() => null);
 
-    if (!user) httpError();
+    if (!user) throw httpError();
 
     return Response.json(
         user,

@@ -3,7 +3,7 @@ interface FuncProps {
 }
 
 export function defineEndpoint(
-    func: (props: FuncProps) => Promise<Response>
+    func: (props: FuncProps) => Promise<Response | undefined>
 ) {
     return {
         func
