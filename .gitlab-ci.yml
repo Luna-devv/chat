@@ -19,5 +19,6 @@ lint:
 typecheck:
   stage: typecheck
   script:
+    - pnpm build
     - pnpm typecheck
   allow_failure: false
