@@ -1,5 +1,6 @@
 import { HttpErrorCode } from "~/constants/http-error";
 import { db } from "~/db";
+import { getUserIdByEmail, getUserIdByUsername } from "~/db/utils/users";
 import { APIPostAuthRegisterBodySchema } from "~/types/auth";
 import { hashPassword } from "~/utils/auth";
 import { verifyCaptchaKey } from "~/utils/captcha";
@@ -20,13 +21,8 @@ async function createUser(request: Request) {
     const captcha = await verifyCaptchaKey(data.captcha_key, ip);
     if (!captcha) httpError(HttpErrorCode.InvalidCaptcha);
 
-    const usernameClaimed = await db
-        .selectFrom("users")
-        .select("username")
-        .where("username", "=", data.username)
-        .execute();
-
-    if (usernameClaimed.length !== 0) httpError(HttpErrorCode.UsernameAlreadyClaimed);
+    if (await getUserIdByUsername(data.username)) httpError(HttpErrorCode.UsernameAlreadyClaimed);
+    if (await getUserIdByEmail(data.email)) httpError(HttpErrorCode.EmailAlreadyRegistered);
 
     const user = await db
         .insertInto("users")
@@ -35,7 +31,7 @@ async function createUser(request: Request) {
             password_hash: await hashPassword(data.password),
             username: data.username
         })
-        .returningAll()
+        .returning("id")
         .executeTakeFirstOrThrow()
         .catch(() => null);
 

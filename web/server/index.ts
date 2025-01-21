@@ -16,7 +16,7 @@ for (const filename of apiFiles) {
     const path = getPathFromFilename(filename);
     const { default: file } = await import(filename /* @vite-ignore */) as { default: ReturnType<typeof defineEndpoint>; };
 
-    app.all("/api" + path, (c) => {
+    app.all("/api" + path, async (c) => {
         return file
             .func({ request: c.req.raw })
             .catch((e) => e);

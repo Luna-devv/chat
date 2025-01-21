@@ -6,7 +6,7 @@ import { Input } from "components/ui/input";
 import { Tabs, TabsList, TabsTrigger } from "components/ui/tabs";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { APIPostAuthRegisterBody, APIPostAuthRegisterBodySchema } from "types/auth";
+import { APIPostAuthLoginBodySchema, APIPostAuthLoginResponse, APIPostAuthRegisterBody, APIPostAuthRegisterBodySchema, APIPostAuthRegisterResponse } from "types/auth";
 import { Config } from "~/constants/config";
 import { request } from "~/lib/api";
 
@@ -25,7 +25,11 @@ export default function Register() {
     const [type, setType] = useState<Type>(Type.Login);
 
     const form = useForm<APIPostAuthRegisterBody>({
-        resolver: zodResolver(APIPostAuthRegisterBodySchema),
+        resolver: zodResolver(
+            type === Type.Create
+                ? APIPostAuthRegisterBodySchema
+                : APIPostAuthLoginBodySchema
+        ),
         defaultValues: {
             email: "",
             username: "",
@@ -41,15 +45,26 @@ export default function Register() {
 
     const canContinue = email && password && (type === Type.Create ? username : true);
 
-    async function onSubmit(data: APIPostAuthRegisterBody) {
-        const res = await request<{ a: string }>("post", "/auth/register", data);
+    async function register(data: APIPostAuthRegisterBody) {
+        const res = await request<APIPostAuthRegisterResponse>("post", "/auth/register", data);
 
         if ("message" in res) {
             form.setError("password", { message: res.message });
             return;
         }
 
-        console.log(res)
+        window.location.href = "/app";
+    }
+
+    async function login(data: APIPostAuthRegisterBody) {
+        const res = await request<APIPostAuthLoginResponse>("post", "/auth/login", data);
+
+        if ("message" in res) {
+            form.setError("password", { message: res.message });
+            return;
+        }
+
+        window.location.href = "/app";
     }
 
     return (
@@ -71,7 +86,7 @@ export default function Register() {
 
                 <Form {...form}>
                     <form
-                        onSubmit={form.handleSubmit(onSubmit)}
+                        onSubmit={form.handleSubmit(type === Type.Create ? register : login)}
                         className="space-y-1"
                     >
                         {fields.map((id) =>

@@ -12,7 +12,9 @@ export function httpError(code: HttpErrorEntry = HttpErrorCode.ServerError, mess
                 : getErrorMessageByCode(code)
         },
         {
-            status: code
+            status: code > 599
+                ? 400
+                : code
         }
     );
 }

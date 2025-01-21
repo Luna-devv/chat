@@ -9,7 +9,7 @@ export async function verifyCaptchaKey(key: string, ip: string) {
     const formData = new FormData();
     formData.append("secret", process.env.CAPTCHA_SECRET!);
     formData.append("response", key);
-    formData.append("remoteip", ip);
+    if (ip) formData.append("remoteip", ip);
 
     const result = await fetch(API_CLOUDFLARE_TURNSILE_SITEVERIFY, {
         body: formData,

@@ -7,7 +7,9 @@ export const HttpErrorCode = {
 
     InvalidCaptcha: 403,
 
-    UsernameAlreadyClaimed: 10_000
+    UsernameAlreadyClaimed: 1_000,
+    EmailAlreadyRegistered: 1_001,
+    EmailOrPasswordIncorrect: 1_002
 } as const;
 
 export const HttpErrorMessage = {
@@ -19,7 +21,9 @@ export const HttpErrorMessage = {
 
     InvalidCaptcha: "Complete the CAPTCHA and try again",
 
-    UsernameAlreadyClaimed: "Username already claimed"
+    UsernameAlreadyClaimed: "Username already claimed",
+    EmailAlreadyRegistered: "An account with this email is already registered",
+    EmailOrPasswordIncorrect: "Email or password is incorrect"
 } satisfies Record<keyof typeof HttpErrorCode, string>;
 
 export type HttpErrorEntry = typeof HttpErrorCode[keyof typeof HttpErrorCode];
