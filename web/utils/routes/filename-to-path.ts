@@ -1,4 +1,4 @@
-export function getUrlFromFilename(filename: string) {
+export function getPathFromFilename(filename: string) {
     let path = "";
 
     for (const param of filename.split("api")[1].slice(1).replace(/(\\|\/\/)/g, "/").split("/")) {

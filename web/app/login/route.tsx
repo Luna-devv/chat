@@ -4,10 +4,10 @@ import { Button } from "components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "components/ui/form";
 import { Input } from "components/ui/input";
 import { Tabs, TabsList, TabsTrigger } from "components/ui/tabs";
-import { Config } from "constants/config";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { APIPostAuthRegisterBody, APIPostAuthRegisterBodySchema } from "types/auth";
+import { Config } from "~/constants/config";
 import { request } from "~/lib/api";
 
 enum Type {

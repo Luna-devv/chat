@@ -7,7 +7,7 @@ import {
     ScrollRestoration,
 } from "react-router";
 
-import { Config } from "constants/config";
+import { Config } from "~/constants/config";
 import stylesheet from "./tailwind.css?url";
 
 export const links: LinksFunction = () => [

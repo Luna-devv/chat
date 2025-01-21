@@ -1,4 +1,4 @@
-import type { HttpErrorEntry } from "constants/http-error";
+import type { HttpErrorEntry } from "~/constants/http-error";
 
 export type HttpMethod = "get" | "post" | "patch" | "put" | "delete";
 export type RouteLike = `/${string}`;
