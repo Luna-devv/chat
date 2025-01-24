@@ -1,8 +1,10 @@
 import { zodResolver } from "@hookform/resolvers/zod";
+import type { TurnstileInstance } from "@marsidev/react-turnstile";
 import { Turnstile } from "@marsidev/react-turnstile";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useForm } from "react-hook-form";
-import { APIPostAuthLoginBodySchema, APIPostAuthLoginResponse, APIPostAuthRegisterBody, APIPostAuthRegisterBodySchema, APIPostAuthRegisterResponse } from "types/auth";
+import { useNavigate } from "react-router";
+
 import { Auth, AuthContent, AuthDescription, AuthTitle } from "~/components/auth";
 import { Button } from "~/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "~/components/ui/form";
@@ -10,6 +12,9 @@ import { Input } from "~/components/ui/input";
 import { Tabs, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { Config } from "~/constants/config";
 import { request } from "~/lib/api";
+import type { ApiError } from "~/types";
+import type { APIPostAuthLoginResponse, APIPostAuthRegisterBody, APIPostAuthRegisterResponse } from "~/types/auth";
+import { APIPostAuthLoginBodySchema, APIPostAuthRegisterBodySchema, UserAuthRequiredAction } from "~/types/auth";
 
 enum Type {
     Login = "login",
@@ -24,6 +29,8 @@ const fields = [
 
 export default function Login() {
     const [type, setType] = useState<Type>(Type.Login);
+    const captcha = useRef<TurnstileInstance>();
+    const navigate = useNavigate();
 
     const form = useForm<APIPostAuthRegisterBody>({
         resolver: zodResolver(
@@ -42,24 +49,24 @@ export default function Login() {
 
     async function register(data: APIPostAuthRegisterBody) {
         const res = await request<APIPostAuthRegisterResponse>("post", "/auth/register", data);
-
-        if ("message" in res) {
-            form.setError("password", { message: res.message });
-            return;
-        }
-
-        window.location.href = "/app";
+        void handle(res);
     }
 
     async function login(data: APIPostAuthRegisterBody) {
         const res = await request<APIPostAuthLoginResponse>("post", "/auth/login", data);
+        void handle(res);
+    }
+
+    function handle(res: APIPostAuthLoginResponse | ApiError) {
+        captcha.current?.reset();
 
         if ("message" in res) {
             form.setError("password", { message: res.message });
             return;
         }
 
-        window.location.href = "/app";
+        if (res.required_actions.includes(UserAuthRequiredAction.VerifyEmail)) return navigate("/verify-email");
+        void navigate("/app");
     }
 
     return (
@@ -80,6 +87,7 @@ export default function Login() {
 
                 <Form {...form}>
                     <form
+                        /* eslint-disable-next-line react-compiler/react-compiler */
                         onSubmit={form.handleSubmit(type === Type.Create ? register : login)}
                         className="space-y-2"
                     >
@@ -121,6 +129,7 @@ export default function Login() {
                                         theme: "dark"
                                     }}
                                     onSuccess={(key) => form.setValue("captcha_key", key)}
+                                    ref={captcha}
                                 />
                         }
 

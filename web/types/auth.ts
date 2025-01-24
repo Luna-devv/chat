@@ -2,8 +2,6 @@ import { z } from "zod";
 
 import { Config } from "~/constants/config";
 
-import type { User } from "./users";
-
 export const APIPostAuthRegisterBodySchema = z.object({
     email: z.string().email().max(64).transform((str) => str.toLowerCase()),
     username: z.string().regex(Config.username_constraint),
@@ -11,8 +9,14 @@ export const APIPostAuthRegisterBodySchema = z.object({
     captcha_key: z.string()
 });
 
+export enum UserAuthRequiredAction {
+    VerifyEmail = 0
+}
+
 export type APIPostAuthRegisterBody = z.infer<typeof APIPostAuthRegisterBodySchema>;
-export type APIPostAuthRegisterResponse = Pick<User, "id">;
+export interface APIPostAuthRegisterResponse {
+    required_actions: UserAuthRequiredAction[];
+}
 
 export const APIPostAuthLoginBodySchema = z.object({
     email: z.string().email().max(64).transform((str) => str.toLowerCase()),
@@ -20,5 +24,5 @@ export const APIPostAuthLoginBodySchema = z.object({
     captcha_key: z.string()
 });
 
-export type ApiPostAuthLoginBody = z.infer<typeof APIPostAuthLoginBodySchema>;
-export type APIPostAuthLoginResponse = Pick<User, "id">;
+export type APIPostAuthLoginBody = z.infer<typeof APIPostAuthLoginBodySchema>;
+export type APIPostAuthLoginResponse = APIPostAuthRegisterResponse;

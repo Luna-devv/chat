@@ -1,12 +1,12 @@
 import bcrypt from "bcrypt";
 import { getUser } from "db/utils/users";
 
-import { verifySession } from "./jwt";
+import { session } from "./jwt";
 
 export async function auth(jwt: string | null) {
     if (!jwt) return null;
 
-    const data = await verifySession(jwt).catch(() => null);
+    const data = await session.verify(jwt).catch(() => null);
     if (!data) return null;
 
     return getUser(data.id);

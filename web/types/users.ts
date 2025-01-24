@@ -1,4 +1,5 @@
 import type { ColumnType, Generated, Selectable } from "kysely";
+import { z } from "zod";
 
 export interface UserTable {
     id: Generated<number>;
@@ -29,4 +30,19 @@ export enum UserFlags {
     Bot = 1 << 3,
 
     Staff = 1 << 4
+}
+
+// /users/@me = *CurrentUser*
+// /users/1 = *Users*
+export const APIPostCurrentUserEmailVerifyBodySchema = z.object({
+    token: z.string(),
+    captcha_key: z.string()
+});
+
+export type APIPostCurrentUserEmailVerifyBody = z.infer<typeof APIPostCurrentUserEmailVerifyBodySchema>;
+export type APIPostCurrentUserEmailVerifyResponse = undefined;
+
+export interface UserEmailVerifyJWTPayload {
+    user_id: User["id"];
+    email: string;
 }

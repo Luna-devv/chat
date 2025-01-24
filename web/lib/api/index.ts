@@ -13,8 +13,8 @@ export async function request<T>(
             ? (isFormData ? body as FormData : JSON.stringify(body))
             : undefined
     })
-        .then((r) => r.json())
-        .catch(() => null);
+        .then((r) => r.headers.get("content-type") === "application/json" ? r.json() : undefined)
+        .catch(() => ({ code: 0, message: "unknown error" }));
 
-    return response || { code: 0, message: "unknown error" };
+    return response;
 }

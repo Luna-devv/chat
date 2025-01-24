@@ -1,15 +1,17 @@
-import type { ZodError, ZodIssue } from "zod";
+import { ZodError, type ZodIssue } from "zod";
 
 import type { HttpErrorEntry } from "~/constants/http-error";
 import { HttpErrorCode, HttpErrorMessage } from "~/constants/http-error";
 
-export function httpError(code: HttpErrorEntry = HttpErrorCode.ServerError, message?: string | ZodError) {
+export function httpError(message: HttpErrorEntry = HttpErrorMessage.ServerError, customMessage?: string | ZodError) {
+    const code = getErrorCodeByMessage(message);
+
     throw Response.json(
         {
             code,
-            message: message
-                ? (typeof message === "string" ? message : parseZodError(message))
-                : getErrorMessageByCode(code)
+            message: customMessage instanceof ZodError
+                ? parseZodError(customMessage)
+                : (customMessage || message)
         },
         {
             status: code > 599
@@ -19,11 +21,11 @@ export function httpError(code: HttpErrorEntry = HttpErrorCode.ServerError, mess
     );
 }
 
-const httpErrorCodes = Object.entries(HttpErrorCode);
+const httpErrorMessages = Object.entries(HttpErrorMessage);
 
-function getErrorMessageByCode(code: HttpErrorEntry) {
-    const entry = httpErrorCodes.find(([, val]) => (val as number) === (code as number))!;
-    return HttpErrorMessage[entry[0] as keyof typeof HttpErrorMessage];
+function getErrorCodeByMessage(message: HttpErrorEntry) {
+    const entry = httpErrorMessages.find(([, val]) => val === message)!;
+    return HttpErrorCode[entry[0] as keyof typeof HttpErrorCode];
 }
 
 function parseZodError(error: ZodError) {
