@@ -1,7 +1,7 @@
 export function Auth({ children }: { children: React.ReactNode; }) {
     return (
-        <div className="bg-[url('/background.avif')] bg-cover bg-no-repeat h-screen w-full flex items-center justify-start sm:p-32">
-            <div className="p-6 border bg-card/75 backdrop-blur border-muted rounded-lg h-full sm:h-fit w-full sm:w-fit sm:max-w-[24rem] min-w-[24rem]">
+        <div className="flex h-screen w-full items-center justify-start bg-[url('/background.avif')] bg-cover bg-no-repeat sm:p-32">
+            <div className="size-full min-w-96 rounded-lg border border-muted bg-card/75 p-6 backdrop-blur sm:size-fit sm:max-w-96">
                 {children}
             </div>
         </div>

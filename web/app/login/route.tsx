@@ -76,7 +76,7 @@ export default function Login() {
             <AuthContent>
                 <Tabs
                     defaultValue={Type.Login}
-                    className="w-full mt-5 mb-3"
+                    className="mb-3 mt-5 w-full"
                     onValueChange={(value) => setType(value as Type)}
                 >
                     <TabsList className="grid w-full grid-cols-2">

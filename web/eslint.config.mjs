@@ -7,9 +7,11 @@ import tseslint from "typescript-eslint";
 import react from "eslint-plugin-react";
 import reactCompiler from "eslint-plugin-react-compiler";
 import reactHooks from "eslint-plugin-react-hooks";
+import tailwind from "eslint-plugin-tailwindcss";
 
 export default tseslint.config(
     ...tseslint.configs.recommended,
+    ...tailwind.configs["flat/recommended"],
     {
         files: ["**/*.mjs", "**/*.ts", "**/*.tsx"],
         languageOptions: {
@@ -166,5 +168,26 @@ export default tseslint.config(
     },
     {
         ignores: [".react-router/*", "build/*", "eslint.config.mjs"]
-    }
+    },
+    {
+        settings: {
+          tailwindcss: {
+            callees: ["classnames", "cn", "cva"],
+            config: "tailwind.config.ts",
+            cssFiles: [
+              "**/*.css",
+              "!**/node_modules",
+              "!**/.*",
+              "!**/dist",
+              "!**/build",
+            ],
+            cssFilesRefreshRate: 5_000,
+            removeDuplicates: true,
+            skipClassAttribute: false,
+            whitelist: [],
+            tags: [],
+            classRegex: "^class(Name)?$",
+          },
+        },
+      }
 );

@@ -33,7 +33,7 @@ function OpenEmails() {
     return (<>
         <AuthDescription>Open your email client to verify your email!</AuthDescription>
 
-        <div className="flex gap-4 mt-4">
+        <div className="mt-4 flex gap-4">
             <Button
                 asChild
                 className="w-1/2"
