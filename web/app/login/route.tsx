@@ -66,25 +66,25 @@ export default function Login() {
         <Auth>
             <AuthTitle>👋 Welcome to {Config.platform_name}</AuthTitle>
             <AuthDescription>Tell us who you are to start chatting!</AuthDescription>
-                <AuthContent>
-                    <Tabs
-                        defaultValue={Type.Login}
-                        className="w-full mt-5 mb-3"
-                        onValueChange={(value) => setType(value as Type)}
-                    >
-                        <TabsList className="grid w-full grid-cols-2">
-                            <TabsTrigger value={Type.Login}>Login</TabsTrigger>
-                            <TabsTrigger value={Type.Create}>Create</TabsTrigger>
-                        </TabsList>
-                    </Tabs>
+            <AuthContent>
+                <Tabs
+                    defaultValue={Type.Login}
+                    className="w-full mt-5 mb-3"
+                    onValueChange={(value) => setType(value as Type)}
+                >
+                    <TabsList className="grid w-full grid-cols-2">
+                        <TabsTrigger value={Type.Login}>Login</TabsTrigger>
+                        <TabsTrigger value={Type.Create}>Create</TabsTrigger>
+                    </TabsList>
+                </Tabs>
 
-                    <Form {...form}>
-                        <form
-                            onSubmit={form.handleSubmit(type === Type.Create ? register : login)}
-                            className="space-y-2"
-                        >
-                            {fields.map((id) =>
-                               (type === Type.Login && id === "username") ? null : (
+                <Form {...form}>
+                    <form
+                        onSubmit={form.handleSubmit(type === Type.Create ? register : login)}
+                        className="space-y-2"
+                    >
+                        {fields.map((id) =>
+                            (type === Type.Login && id === "username") ? null : (
                                 <FormField
                                     key={id}
                                     control={form.control}
@@ -110,9 +110,9 @@ export default function Login() {
                                     )}
                                 />
                             ))}
-                            <div className="h-2" />
+                        <div className="h-2" />
 
-                            {(canContinue || captchaKey) &&
+                        {(canContinue || captchaKey) &&
                                 <Turnstile
                                     className="!mb-2"
                                     siteKey={Config.captcha_site_key}
@@ -122,18 +122,18 @@ export default function Login() {
                                     }}
                                     onSuccess={(key) => form.setValue("captcha_key", key)}
                                 />
-                            }
+                        }
 
-                            <Button
-                                className="w-full"
-                                type="submit"
-                                disabled={!canContinue || !captchaKey}
-                            >
-                                Submit
-                            </Button>
-                        </form>
-                    </Form>
-                </AuthContent>
+                        <Button
+                            className="w-full"
+                            type="submit"
+                            disabled={!canContinue || !captchaKey}
+                        >
+                            Submit
+                        </Button>
+                    </form>
+                </Form>
+            </AuthContent>
         </Auth>
     );
 }

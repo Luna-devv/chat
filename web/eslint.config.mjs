@@ -11,7 +11,7 @@ import reactHooks from "eslint-plugin-react-hooks";
 export default tseslint.config(
     ...tseslint.configs.recommended,
     {
-        files: ["**/*.mjs", "**/*.ts"],
+        files: ["**/*.mjs", "**/*.ts", "**/*.tsx"],
         languageOptions: {
             parser: tseslint.parser,
             parserOptions: {
