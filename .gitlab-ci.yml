@@ -1,24 +1,103 @@
 stages:
-  - lint
-  - typecheck
+    - web-install-dependencies
+    - web-lint
+    - web-build
+    - web-typecheck
+    - gateway-build
 
-default:
-  image: node:latest
+web-install-dependencies:
+    stage: web-install-dependencies
+    image: node:latest
+    before_script:
+        - corepack enable
+        - corepack prepare pnpm@latest-10 --activate
+        - pnpm config set store-dir .pnpm-store
+    script:
+        - cd ./web
+        - pnpm install
+    cache:
+        key:
+            files:
+                - web/pnpm-lock.yaml
+        paths:
+            - .pnpm-store
+    allow_failure: false
+    needs: []
 
-before_script:
-  - cd ./web
-  - npm install -g pnpm
-  - pnpm install
+web-lint:
+    stage: web-lint
+    image: node:latest
+    before_script:
+        - corepack enable
+        - corepack prepare pnpm@latest-10 --activate
+        - pnpm config set store-dir .pnpm-store
+    script:
+        - cd ./web
+        - pnpx eslint .
+    cache:
+        key:
+            files:
+                - web/pnpm-lock.yaml
+        paths:
+            - .pnpm-store
+    needs:
+        - web-install-dependencies
+    allow_failure: true # not required to work.. so..
 
-lint:
-  stage: lint
-  script:
-    - pnpx eslint .
-  allow_failure: false
+web-build:
+    stage: web-build
+    image: node:latest
+    before_script:
+        - corepack enable
+        - corepack prepare pnpm@latest-10 --activate
+        - pnpm config set store-dir .pnpm-store
+    script:
+        - cd ./web
+        - pnpm build
+    cache:
+        key:
+            files:
+                - web/pnpm-lock.yaml
+        paths:
+            - .pnpm-store
+    needs:
+        - web-install-dependencies
+    artifacts:
+        paths:
+            - web/build
+        expire_in: 1 hour
+    allow_failure: false
 
-typecheck:
-  stage: typecheck
-  script:
-    - pnpm build
-    - pnpm typecheck
-  allow_failure: false
+web-typecheck:
+    stage: web-typecheck
+    image: node:latest
+    before_script:
+        - corepack enable
+        - corepack prepare pnpm@latest-10 --activate
+        - pnpm config set store-dir .pnpm-store
+    script:
+        - cd ./web
+        - pnpm typecheck
+    cache:
+        key:
+            files:
+                - web/pnpm-lock.yaml
+        paths:
+            - .pnpm-store
+    needs:
+        - web-install-dependencies
+        - web-build
+    allow_failure: false
+
+gateway-build:
+    stage: gateway-build
+    image: golang:1.23
+    script:
+        - cd ./gateway
+        - go mod download
+        - go build -o ../gateway-server
+    artifacts:
+        paths:
+            - gateway-server
+    allow_failure: false
+    needs: []

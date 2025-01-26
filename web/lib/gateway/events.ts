@@ -1,6 +1,6 @@
 import type { EventMap } from "~/types/gateway";
 
 export const events = {
-    ready: () => {},
-    user_update: () => {}
+    ready: (_data) => {},
+    user_update: (_data) => {}
 } satisfies EventMap;
