@@ -21,6 +21,7 @@ export interface UserTable {
 export type User = Selectable<UserTable>;
 export type UserJWTPayload = Pick<User, "id">;
 export type PublicUser = Omit<User, "password_hash">;
+export type CurrentUser = PublicUser;
 
 export enum UserFlags {
     VerifiedEmail = 1 << 0,
