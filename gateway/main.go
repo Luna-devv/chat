@@ -71,20 +71,20 @@ func handleWebSocket(w http.ResponseWriter, r *http.Request, db *pgxpool.Pool) {
 	conID := fmt.Sprintf("%d", time.Now().UnixMilli())
 
 	client := &Client{
-		Conn:     conn,
-		UserID:   session.Id,
-		GuildIDs: make(map[string]struct{}),
+		Conn:      ws,
+		UserId:    session.Id,
+		ServerIds: make(map[int]struct{}),
 	}
 
-	//for _, gid := range guildIDs {
-	//	client.GuildIDs[gid] = struct{}{}
+	//for _, gid := range ServerIds {
+	//	client.ServerIds[gid] = struct{}{}
 	//}
 
 	clients.Lock()
 	clients.connected[conID] = client
 	clients.Unlock()
 
-	log.Printf("User %s connected (con: %s)", session.Id, conID)
+	log.Printf("User %d connected (con: %s)", session.Id, conID)
 	defer disconnectClient(conID)
 
 	sendToClient(client, Event{
@@ -95,7 +95,7 @@ func handleWebSocket(w http.ResponseWriter, r *http.Request, db *pgxpool.Pool) {
 	})
 
 	for {
-		_, _, err := conn.ReadMessage()
+		_, _, err := ws.ReadMessage()
 		if err != nil {
 			log.Println("Connection closed for user:", session.Id)
 			break
@@ -105,7 +105,7 @@ func handleWebSocket(w http.ResponseWriter, r *http.Request, db *pgxpool.Pool) {
 
 func startRedisSubscription() {
 	ctx := context.Background()
-	pubsub := redisClient.PSubscribe(ctx, "guild:*", "user:*")
+	pubsub := redisClient.PSubscribe(ctx, "server:*", "user:*")
 
 	ch := pubsub.Channel()
 	for msg := range ch {
@@ -122,23 +122,25 @@ func handleRedisMessage(msg *redis.Message) {
 	}
 
 	switch event.Type {
-	case "guild_member_create":
-		userID := event.Data.(map[string]interface{})["userId"].(string)
-		guildID := event.Data.(map[string]interface{})["guildId"].(string)
-		addMemberToGuild(userID, guildID)
-		broadcastToGuild(event.Data.(map[string]interface{})["guild_id"].(string), event)
+	case "server_member_create":
+		userId := event.Data.(map[string]interface{})["user_id"].(int)
+		serverId := event.Data.(map[string]interface{})["server_id"].(int)
 
-	case "guild_member_remove":
-		userID := event.Data.(map[string]interface{})["userId"].(string)
-		guildID := event.Data.(map[string]interface{})["guildId"].(string)
-		removeMemberFromGuild(userID, guildID)
-		broadcastToGuild(event.Data.(map[string]interface{})["guild_id"].(string), event)
+		addMemberToServer(userId, serverId)
+		broadcastToServer(serverId, event)
+
+	case "server_member_remove":
+		userId := event.Data.(map[string]interface{})["user_id"].(int)
+		serverId := event.Data.(map[string]interface{})["server_id"].(int)
+
+		removeMemberFromServer(userId, serverId)
+		broadcastToServer(serverId, event)
 
 	default:
-		if event.Data.(map[string]interface{})["guild_id"] == nil {
-			broadcastToUser(event.Data.(map[string]interface{})["user_id"].(string), event)
+		if event.Data.(map[string]interface{})["server_id"] == nil {
+			broadcastToUser(event.Data.(map[string]interface{})["user_id"].(int), event)
 		} else {
-			broadcastToGuild(event.Data.(map[string]interface{})["guild_id"].(string), event)
+			broadcastToServer(event.Data.(map[string]interface{})["server_id"].(int), event)
 		}
 	}
 }

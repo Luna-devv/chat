@@ -2,23 +2,23 @@ package main
 
 import "log"
 
-func broadcastToGuild(guildID string, event Event) {
+func broadcastToServer(serverId int, event Event) {
 	clients.RLock()
 	defer clients.RUnlock()
 
 	for _, client := range clients.connected {
-		if _, ok := client.GuildIDs[guildID]; ok {
+		if _, ok := client.ServerIds[serverId]; ok {
 			sendToClient(client, event)
 		}
 	}
 }
 
-func broadcastToUser(userID string, event Event) {
+func broadcastToUser(userId int, event Event) {
 	clients.RLock()
 	defer clients.RUnlock()
 
 	for _, client := range clients.connected {
-		if client.UserID == userID {
+		if client.UserId == userId {
 			sendToClient(client, event)
 		}
 	}

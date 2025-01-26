@@ -7,9 +7,9 @@ import (
 )
 
 type Client struct {
-	Conn     *websocket.Conn
-	UserID   string
-	GuildIDs map[string]struct{}
+	Conn      *websocket.Conn
+	UserId    int
+	ServerIds map[int]struct{}
 }
 
 // Event struct represents a generic event
@@ -19,7 +19,7 @@ type Event struct {
 }
 
 type UserTable struct {
-	Id string `json:"id"`
+	Id int `json:"id"`
 
 	Email        string `json:"email"`
 	PasswordHash string `json:"-"`
