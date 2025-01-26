@@ -11,7 +11,7 @@ import (
 )
 
 type UserJWTPayload struct {
-	Id string `json:"id"`
+	Id int `json:"id"`
 	jwt.RegisteredClaims
 }
 
@@ -25,6 +25,7 @@ func Verify(str string) (*UserJWTPayload, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
+
 		return hexHash, nil
 	})
 

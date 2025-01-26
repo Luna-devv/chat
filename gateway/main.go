@@ -48,30 +48,23 @@ func main() {
 }
 
 func handleWebSocket(w http.ResponseWriter, r *http.Request, db *pgxpool.Pool) {
-	token := r.URL.Query().Get("session")
-	if len(token) == 0 {
-		http.Error(w, "Invalid Authorization", http.StatusForbidden)
+	ws, err := upgrader.Upgrade(w, r, nil)
+	if err != nil {
+		log.Println("WebSocket upgrade failed:", err)
 		return
 	}
 
+	token := jwt.ExtractSessionTokenFromRequest(r)
 	session, err := jwt.Verify(token)
-	fmt.Println(session)
 	if err != nil {
-		http.Error(w, "Invalid Authorization", http.StatusForbidden)
+		ws.Close()
 		return
 	}
 
 	var user UserTable
 	err = pgxscan.Get(context.Background(), db, &user, "SELECT * FROM users WHERE id=$1", session.Id)
-	fmt.Println(err)
 	if err != nil {
-		http.Error(w, "Invalid Authorization", http.StatusForbidden)
-		return
-	}
-
-	conn, err := upgrader.Upgrade(w, r, nil)
-	if err != nil {
-		log.Println("WebSocket upgrade failed:", err)
+		ws.Close()
 		return
 	}
 
