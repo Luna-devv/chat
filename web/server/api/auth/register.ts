@@ -3,7 +3,7 @@ import { db } from "~/db";
 import { getUserIdByEmail, getUserIdByUsername } from "~/db/utils/users";
 import { APIPostAuthRegisterBodySchema, UserAuthRequiredAction } from "~/types/auth";
 import { UserFlags } from "~/types/users";
-import { hashPassword } from "~/utils/auth";
+import { generateCookieHeaderFromJWT, hashPassword } from "~/utils/auth";
 import { BitfieldManager } from "~/utils/bitfields";
 import { verifyCaptchaKey } from "~/utils/captcha";
 import { defineEndpoint } from "~/utils/define/endpoint";
@@ -62,7 +62,7 @@ async function createUser(request: Request) {
             headers: requiredActions.length
                 ? undefined
                 : {
-                    "Set-Cookie": "session=" + session.sign({ id: user.id })
+                    "Set-Cookie": generateCookieHeaderFromJWT(session.sign({ id: user.id }))
                 }
         }
     );

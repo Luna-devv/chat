@@ -23,3 +23,7 @@ export function hashPassword(password: string) {
 export function verifyPassword(enteredPassword: string, hashedPassword: string) {
     return bcrypt.compare(enteredPassword, hashedPassword);
 }
+
+export function generateCookieHeaderFromJWT(token: string) {
+    return `session=${token}; SameSite=Strict; Path=/; Max-Age=${60 * 60 * 24 * 355}; Secure; HttpOnly`;
+}

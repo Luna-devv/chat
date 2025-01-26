@@ -1,6 +1,7 @@
 import { HttpErrorMessage } from "~/constants/http-error";
 import { db } from "~/db";
 import { APIPostCurrentUserEmailVerifyBodySchema, UserFlags } from "~/types/users";
+import { generateCookieHeaderFromJWT } from "~/utils/auth";
 import { BitfieldManager } from "~/utils/bitfields";
 import { verifyCaptchaKey } from "~/utils/captcha";
 import { defineEndpoint } from "~/utils/define/endpoint";
@@ -45,7 +46,7 @@ async function verifyEmail(request: Request) {
         {
             status: 204,
             headers: {
-                "Set-Cookie": "session=" + session.sign({ id: payload.user_id })
+                "Set-Cookie": generateCookieHeaderFromJWT(session.sign({ id: payload.user_id }))
             }
         }
     );

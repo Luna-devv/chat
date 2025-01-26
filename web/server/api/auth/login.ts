@@ -2,7 +2,7 @@ import { HttpErrorMessage } from "~/constants/http-error";
 import { db } from "~/db";
 import { APIPostAuthLoginBodySchema, UserAuthRequiredAction } from "~/types/auth";
 import { UserFlags } from "~/types/users";
-import { verifyPassword } from "~/utils/auth";
+import { generateCookieHeaderFromJWT, verifyPassword } from "~/utils/auth";
 import { BitfieldManager } from "~/utils/bitfields";
 import { verifyCaptchaKey } from "~/utils/captcha";
 import { defineEndpoint } from "~/utils/define/endpoint";
@@ -46,7 +46,7 @@ async function loginUser(request: Request) {
             headers: requiredActions.length
                 ? undefined
                 : {
-                    "Set-Cookie": "session=" + session.sign({ id: user.id })
+                    "Set-Cookie": generateCookieHeaderFromJWT(session.sign({ id: user.id }))
                 }
         }
     );
