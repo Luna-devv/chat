@@ -7,11 +7,10 @@ import tseslint from "typescript-eslint";
 import react from "eslint-plugin-react";
 import reactCompiler from "eslint-plugin-react-compiler";
 import reactHooks from "eslint-plugin-react-hooks";
-import tailwind from "eslint-plugin-tailwindcss";
 
 export default tseslint.config(
     ...tseslint.configs.recommended,
-    ...tailwind.configs["flat/recommended"],
+    // ...tailwind.configs["flat/recommended"],
     {
         files: ["**/*.mjs", "**/*.ts", "**/*.tsx"],
         languageOptions: {

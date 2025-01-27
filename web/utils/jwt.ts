@@ -10,7 +10,7 @@ const secret = createHash("sha256")
 class JWTManager<T extends object> {
     constructor(
         private secret: string,
-        private expiresIn: string
+        private expiresIn: `${number}D`
     ) {}
 
     sign(data: T) {
@@ -27,5 +27,5 @@ class JWTManager<T extends object> {
     }
 }
 
-export const session = new JWTManager<UserJWTPayload>(secret + "session", "365d");
-export const verifyemail = new JWTManager<UserEmailVerifyJWTPayload>(secret + "verifyemail", "1d");
+export const session = new JWTManager<UserJWTPayload>(secret + "session", "365D");
+export const verifyemail = new JWTManager<UserEmailVerifyJWTPayload>(secret + "verifyemail", "1D");

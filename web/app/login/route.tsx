@@ -29,7 +29,7 @@ const fields = [
 
 export default function Login() {
     const [type, setType] = useState<Type>(Type.Login);
-    const captcha = useRef<TurnstileInstance>();
+    const captcha = useRef<TurnstileInstance | null>(null);
     const navigate = useNavigate();
 
     const form = useForm<APIPostAuthRegisterBody>({

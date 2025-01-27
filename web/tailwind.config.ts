@@ -2,7 +2,7 @@ import type { Config } from "tailwindcss";
 import twa from "tailwindcss-animate";
 
 export default {
-    darkMode: ["class"],
+    darkMode: "class",
     content: [
         "app/**/*.{ts,tsx}",
         "components/**/*.{ts,tsx}"
