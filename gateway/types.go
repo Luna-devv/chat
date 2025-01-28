@@ -25,11 +25,11 @@ type UserTable struct {
 	PasswordHash string `json:"-"`
 
 	Username string `json:"username"`
-	Nickname string `json:"nickname"`
+	Nickname *string `json:"nickname"`
 
 	Flags    int64 `json:"flags"`
-	AvatarId int   `json:"avatar_id"`
-	BannerId int   `json:"banner_id"`
+	AvatarId *int   `json:"avatar_id"`
+	BannerId *int   `json:"banner_id"`
 
 	CreatedAt time.Time `json:"created_at"`
 }
