@@ -121,16 +121,16 @@ export default function Login() {
                         <div className="h-2" />
 
                         {(canContinue || captchaKey) &&
-                                <Turnstile
-                                    className="!mb-2"
-                                    siteKey={Config.captcha_site_key}
-                                    options={{
-                                        size: "flexible",
-                                        theme: "dark"
-                                    }}
-                                    onSuccess={(key) => form.setValue("captcha_key", key)}
-                                    ref={captcha}
-                                />
+                            <Turnstile
+                                className="!mb-2"
+                                siteKey={Config.captcha_site_key}
+                                options={{
+                                    size: "flexible",
+                                    theme: "dark"
+                                }}
+                                onSuccess={(key) => form.setValue("captcha_key", key)}
+                                ref={captcha}
+                            />
                         }
 
                         <Button

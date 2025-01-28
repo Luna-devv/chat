@@ -24,7 +24,7 @@
         --destructive: 0 84% 60%;
         --destructive-foreground: 210 20% 98%;
         --border: 240 16% 16%;
-        --input: 260 3% 8;
+        --input: 240 16% 16;
         --ring: 258 89% 66%;
         --chart-1: 220 70% 50%;
         --chart-2: 160 60% 45%;
@@ -40,5 +40,8 @@
     }
     body {
         @apply bg-background text-foreground;
+    }
+    button {
+        @apply cursor-pointer
     }
 }
