@@ -67,6 +67,15 @@ func handleWebSocket(w http.ResponseWriter, r *http.Request, db *pgxpool.Pool) {
 	err = pgxscan.Get(context.Background(), db, &user, "SELECT * FROM users WHERE id=$1", session.Id)
 	if err != nil {
 		ws.Close()
+		fmt.Println(err)
+		return
+	}
+
+	var servers []ServerTable
+	err = pgxscan.Select(context.Background(), db, &servers, "SELECT * FROM servers WHERE owner_id=$1", session.Id) // TODO: fix
+	if err != nil {
+		ws.Close()
+		fmt.Println(err)
 		return
 	}
 
@@ -91,8 +100,9 @@ func handleWebSocket(w http.ResponseWriter, r *http.Request, db *pgxpool.Pool) {
 
 	sendToClient(client, Event{
 		Type: "ready",
-		Data: ReadEventPayload{
-			User: user,
+		Data: ReadyEventPayload{
+			User:    user,
+			Servers: servers,
 		},
 	})
 
