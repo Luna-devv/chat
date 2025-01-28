@@ -12,9 +12,9 @@ export function CurrentUserPanel() {
                 id={currentUser?.id}
                 username={currentUser?.username}
             />
-            <div className="font-medium">
-                <p>{currentUser?.nickname || currentUser?.username}</p>
-                <p className="opacity-50 text-xs">@{currentUser?.username}</p>
+            <div>
+                <p className="font-medium">{currentUser?.nickname || currentUser?.username}</p>
+                <p className="text-muted-foreground text-xs font-semibold">@{currentUser?.username}</p>
             </div>
         </div>
     );
