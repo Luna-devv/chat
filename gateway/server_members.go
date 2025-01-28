@@ -2,19 +2,19 @@ package main
 
 import "log"
 
-func addMemberToServer(serverId int, userId int) {
+func addMemberToServer(userId int, serverId int) {
 	clients.RLock()
 	defer clients.RUnlock()
 
 	for _, client := range clients.connected {
-		if _, ok := client.ServerIds[serverId]; ok {
+		if client.UserId == userId {
 			client.ServerIds[serverId] = struct{}{}
 			log.Printf("Added user %d to %d", userId, serverId)
 		}
 	}
 }
 
-func removeMemberFromServer(serverId int, userId int) {
+func removeMemberFromServer(userId int, serverId int) {
 	clients.RLock()
 	defer clients.RUnlock()
 

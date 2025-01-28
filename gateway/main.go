@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
+	"strings"
 	"sync"
 	"time"
 
@@ -121,26 +123,41 @@ func handleRedisMessage(msg *redis.Message) {
 		return
 	}
 
+	if strings.HasPrefix(msg.Channel, "server:") {
+		serverIdStr := strings.Split(msg.Channel, ":")[1]
+
+		serverId, err := strconv.Atoi(serverIdStr)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+
+		broadcastToServer(serverId, event)
+		return
+	}
+
+	userIdStr := strings.Split(msg.Channel, ":")[1]
+
+	userId, err := strconv.Atoi(userIdStr)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
 	switch event.Type {
-	case "server_member_create":
-		userId := event.Data.(map[string]interface{})["user_id"].(int)
-		serverId := event.Data.(map[string]interface{})["server_id"].(int)
+	case "server_create":
+		serverId := event.Data.(map[string]interface{})["id"].(float64)
 
-		addMemberToServer(userId, serverId)
-		broadcastToServer(serverId, event)
+		addMemberToServer(userId, int(serverId))
+		broadcastToUser(userId, event)
 
-	case "server_member_remove":
-		userId := event.Data.(map[string]interface{})["user_id"].(int)
-		serverId := event.Data.(map[string]interface{})["server_id"].(int)
+	case "server_delete":
+		serverId := event.Data.(map[string]interface{})["id"].(float64)
 
-		removeMemberFromServer(userId, serverId)
-		broadcastToServer(serverId, event)
+		removeMemberFromServer(userId, int(serverId))
+		broadcastToUser(userId, event)
 
 	default:
-		if event.Data.(map[string]interface{})["server_id"] == nil {
-			broadcastToUser(event.Data.(map[string]interface{})["user_id"].(int), event)
-		} else {
-			broadcastToServer(event.Data.(map[string]interface{})["server_id"].(int), event)
-		}
+		broadcastToUser(userId, event)
 	}
 }
