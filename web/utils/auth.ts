@@ -1,5 +1,4 @@
 import bcrypt from "bcrypt";
-import { getUser } from "db/utils/users";
 
 import { session } from "./jwt";
 
@@ -9,7 +8,7 @@ export async function auth(jwt: string | null) {
     const data = await session.verify(jwt).catch(() => null);
     if (!data) return null;
 
-    return getUser(data.id);
+    return data.id;
 }
 
 export function via(request: Request) {

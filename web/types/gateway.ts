@@ -1,10 +1,12 @@
-import type { CurrentUser, PublicUser } from "./users";
+import type { Server } from "./server";
+import type { CurrentUser } from "./users";
 
 import type { Awaitable } from ".";
 
 export interface EventMap {
     ready: (data: ReadyEvent) => Awaitable<void>;
-    user_update: (data: UserUpdateEvent) => Awaitable<void>;
+    server_create: (server: ServerCreateEvent) => Awaitable<void>;
+    server_delete: (serverId: number) => Awaitable<void>;
 }
 
 export interface GatewayMessage<T extends keyof EventMap = keyof EventMap> {
@@ -14,6 +16,7 @@ export interface GatewayMessage<T extends keyof EventMap = keyof EventMap> {
 
 export interface ReadyEvent {
     user: CurrentUser;
+    servers: Server[];
 }
 
-export type UserUpdateEvent = Partial<PublicUser >;
+export type ServerCreateEvent = Server;

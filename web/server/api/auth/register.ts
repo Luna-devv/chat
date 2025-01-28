@@ -35,8 +35,7 @@ async function createUser(request: Request) {
             username: data.username
         })
         .returning(["id", "username", "email", "flags"])
-        .executeTakeFirstOrThrow()
-        .catch(() => null);
+        .executeTakeFirst();
 
     if (!user) throw httpError();
 

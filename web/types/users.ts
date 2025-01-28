@@ -33,8 +33,8 @@ export enum UserFlags {
     Staff = 1 << 4
 }
 
-// /users/@me = *CurrentUser*
-// /users/1 = *Users*
+// GET /users/@me = *CurrentUser*
+// GET /users/1 = *Users*
 export const APIPostCurrentUserEmailVerifyBodySchema = z.object({
     token: z.string(),
     captcha_key: z.string()
