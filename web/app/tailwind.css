@@ -6,11 +6,12 @@
         --radius: 0.5rem;
     }
     .dark {
-        --background: 0 0% 4%;
+        --background: 240 14% 7%;
+        --background-2: 240 15% 10%;
         --foreground: 210 20% 98%;
         --card: 224 1.4% 4.1%;
         --card-foreground: 210 20% 98%;
-        --popover: 260 3% 4.1%;
+        --popover: 240 15% 10%;
         --popover-foreground: 210 20% 98%;
         --secondary: 240 15% 10%;
         --secondary-foreground: 220.9 39.3% 89%;
@@ -22,7 +23,7 @@
         --accent-foreground: 210 20% 98%;
         --destructive: 0 84% 60%;
         --destructive-foreground: 210 20% 98%;
-        --border: 260 3% 16;
+        --border: 240 16% 16%;
         --input: 260 3% 8;
         --ring: 258 89% 66%;
         --chart-1: 220 70% 50%;
@@ -35,7 +36,7 @@
 
 @layer base {
     * {
-        @apply border-border;
+        @apply border-border ease-in-out;
     }
     body {
         @apply bg-background text-foreground;

@@ -7,7 +7,7 @@ export const Config = {
     password_constraint: /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$ %^&*-]).{8,}$/,
 
     base_url: "http://localhost:5173",
-    email_domain: "nelly.lunish.nl",
-
-    gateway_url: "ws://localhost:8080"
+    gateway_url: "ws://localhost:8080",
+    cdn_url: "https://media.wamellow.com",
+    email_domain: "nelly.lunish.nl"
 };
