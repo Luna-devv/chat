@@ -1,20 +1,19 @@
 import { HttpErrorMessage } from "~/constants/http-error";
 import { db } from "~/db";
 import { APIPostServersBodySchema } from "~/types/server";
-import { auth, via } from "~/utils/auth";
 import { verifyCaptchaKey } from "~/utils/captcha";
-import { defineEndpoint } from "~/utils/define/endpoint";
+import { defineEndpoint, defineEndpointOptions } from "~/utils/define/endpoint";
 import { emitGatewayEvent } from "~/utils/emit-event";
 import { httpError } from "~/utils/http-error";
 
-export default defineEndpoint(async ({ request }) => {
-    const userId = await auth(via(request));
-    if (!userId) throw httpError(HttpErrorMessage.InvalidAuthorization);
-
-    if (request.method === "POST") return createServer(request, userId);
-
-    httpError(HttpErrorMessage.NotFound);
+const options = defineEndpointOptions({
+    require_auth: true
 });
+
+export default defineEndpoint(async ({ request, userId }) => {
+    if (request.method === "POST") return createServer(request, userId);
+    httpError(HttpErrorMessage.NotFound);
+}, options);
 
 async function createServer(request: Request, userId: number) {
     const { data, success, error } = APIPostServersBodySchema.safeParse(await request.json());

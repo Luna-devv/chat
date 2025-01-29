@@ -1,15 +1,13 @@
 import { HttpErrorMessage } from "~/constants/http-error";
-import { auth, via } from "~/utils/auth";
-import { defineEndpoint } from "~/utils/define/endpoint";
+import { getUser } from "~/db/utils/users";
+import { defineEndpoint, defineEndpointOptions } from "~/utils/define/endpoint";
 import { httpError } from "~/utils/http-error";
 
-export default defineEndpoint(async ({ request }) => {
-    const user = await auth(via(request));
-    if (!user) httpError(HttpErrorMessage.InvalidAuthorization);
-
-    switch (request.method) {
-        case "GET": return Response.json(user);
-    }
-
-    httpError(HttpErrorMessage.NotFound);
+const options = defineEndpointOptions({
+    require_auth: true
 });
+
+export default defineEndpoint(async ({ request, userId }) => {
+    if (request.method === "GET") return Response.json(await getUser(userId));
+    httpError(HttpErrorMessage.NotFound);
+}, options);
