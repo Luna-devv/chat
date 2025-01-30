@@ -1,3 +1,4 @@
+import { useRoomStore } from "~/common/rooms";
 import { useServerStore } from "~/common/servers";
 import { useCurrentUserStore } from "~/common/users";
 import type { EventMap } from "~/types/gateway";
@@ -5,8 +6,12 @@ import type { EventMap } from "~/types/gateway";
 export const events = {
     ready: (data) => {
         useCurrentUserStore.setState(data.user);
-        const { set } = useServerStore.getState();
-        set(data.servers || []);
+
+        const { set: setServers } = useServerStore.getState();
+        setServers(data.servers || []);
+
+        const { set: setRooms } = useRoomStore.getState();
+        setRooms(data.rooms || []);
     },
     server_create: (server) => {
         const { add } = useServerStore.getState();
@@ -15,5 +20,13 @@ export const events = {
     server_delete: (server) => {
         const { remove } = useServerStore.getState();
         remove(server);
+    },
+    room_create: (room) => {
+        const { add } = useRoomStore.getState();
+        add(room);
+    },
+    room_delete: (room) => {
+        const { remove } = useRoomStore.getState();
+        remove(room);
     }
 } satisfies EventMap;

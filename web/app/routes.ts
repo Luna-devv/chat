@@ -9,8 +9,10 @@ export default [
     route("verify-email", "./verify-email/route.tsx"),
 
     layout("./(app)/layout.tsx", [
-        layout("./(app)/rooms/[id]/layout.tsx", [
-            route("rooms/:id", "./(app)/rooms/[id]/route.tsx")
+        layout("./(app)/rooms/layout.tsx", [
+            route("rooms/:sid", "./(app)/rooms/[sid]/route.tsx"),
+            route("rooms/:sid/:rid", "./(app)/rooms/[sid]/[rid]/route.tsx"),
+            route("rooms/*", "./(app)/not-found.tsx")
         ])
     ])
 ] satisfies RouteConfig;
