@@ -1,3 +1,4 @@
+import type { Room } from "./rooms";
 import type { Server } from "./server";
 import type { CurrentUser } from "./users";
 
@@ -5,8 +6,12 @@ import type { Awaitable } from ".";
 
 export interface EventMap {
     ready: (data: ReadyEvent) => Awaitable<void>;
+
     server_create: (server: ServerCreateEvent) => Awaitable<void>;
-    server_delete: (serverId: number) => Awaitable<void>;
+    server_delete: (serverId: ServerDeleteEvent) => Awaitable<void>;
+
+    room_create: (server: RoomCreateEvent) => Awaitable<void>;
+    room_delete: (serverId: RoomDeleteEvent) => Awaitable<void>;
 }
 
 export interface GatewayMessage<T extends keyof EventMap = keyof EventMap> {
@@ -17,6 +22,11 @@ export interface GatewayMessage<T extends keyof EventMap = keyof EventMap> {
 export interface ReadyEvent {
     user: CurrentUser;
     servers: Server[];
+    rooms: Room[];
 }
 
 export type ServerCreateEvent = Server;
+export type ServerDeleteEvent = number;
+
+export type RoomCreateEvent = Room;
+export type RoomDeleteEvent = number;
