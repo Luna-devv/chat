@@ -46,10 +46,9 @@ export function CreateServerModal({
                         A server is a collection of rooms where you and your friends - or community - can chat and hang out!
                     </DialogDescription>
                 </DialogHeader>
-                {
-                    state === State.Choose
-                        ? <Choose onChange={setState} />
-                        : <CreateServer onSuccess={() => setOpen(false)} />
+                {state === State.Choose
+                    ? <Choose onChange={setState} />
+                    : <CreateServer onSuccess={() => setOpen(false)} />
                 }
             </DialogContent>
         </Dialog>
@@ -139,6 +138,7 @@ function CreateServer({
                                 <Input
                                     type="name"
                                     autoFocus
+                                    placeholder="Lesbian Dungeon"
                                     {...field}
                                 />
                             </FormControl>
@@ -166,7 +166,7 @@ function CreateServer({
                     type="submit"
                     disabled={!name || !captchaKey}
                 >
-                    Create
+                    Create Server
                 </Button>
             </form>
         </Form>
