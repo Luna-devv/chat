@@ -1,3 +1,4 @@
+import { useMessageStore } from "~/common/message";
 import { useRoomStore } from "~/common/rooms";
 import { useServerStore } from "~/common/servers";
 import { useCurrentUserStore } from "~/common/users";
@@ -13,20 +14,31 @@ export const events = {
         const { set: setRooms } = useRoomStore.getState();
         setRooms(data.rooms || []);
     },
+
     server_create: (server) => {
         const { add } = useServerStore.getState();
         add(server);
     },
-    server_delete: (server) => {
+    server_delete: (serverId) => {
         const { remove } = useServerStore.getState();
-        remove(server);
+        remove(serverId);
     },
+
     room_create: (room) => {
         const { add } = useRoomStore.getState();
         add(room);
     },
-    room_delete: (room) => {
+    room_delete: (roomId) => {
         const { remove } = useRoomStore.getState();
-        remove(room);
+        remove(roomId);
+    },
+
+    message_create: (message) => {
+        const { add } = useMessageStore.getState();
+        add(message);
+    },
+    message_delete: (messageId) => {
+        const { remove } = useMessageStore.getState();
+        remove(messageId);
     }
 } satisfies EventMap;
