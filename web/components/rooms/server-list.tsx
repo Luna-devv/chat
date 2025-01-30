@@ -9,7 +9,7 @@ import { ServerIcon } from "../ui/avatar";
 import { Button } from "../ui/button";
 
 export function ServerList() {
-    const servers = useServerStore((store) => store.servers);
+    const servers = useServerStore((store) => store.items);
 
     return (
         <div className="w-15 bg-background2 pb-4 h-full">

@@ -9,6 +9,7 @@ web-install-dependencies:
     stage: web-install-dependencies
     image: node:latest
     before_script:
+        - rm -rf ~/.cache/corepack
         - corepack enable
         - corepack prepare pnpm@latest-10 --activate
         - pnpm config set store-dir .pnpm-store
