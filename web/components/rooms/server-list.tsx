@@ -1,7 +1,10 @@
 import { PlusIcon } from "lucide-react";
-import { Link } from "react-router";
+import { useEffect } from "react";
+import { Link, useParams } from "react-router";
 
+import { useLastRoomForServerStore } from "~/common/rooms";
 import { useServerStore } from "~/common/servers";
+import { useCurrentServer } from "~/hooks/server";
 import type { Server } from "~/types/server";
 
 import { CreateServerModal } from "./create-server";
@@ -10,6 +13,19 @@ import { Button } from "../ui/button";
 
 export function ServerList() {
     const servers = useServerStore((store) => store.items);
+    const lastRoom = useLastRoomForServerStore();
+    const server = useCurrentServer();
+    const params = useParams();
+
+    useEffect(
+        () => {
+            const roomId = Number(params.rid);
+            if (!server || !roomId || Number.isNaN(roomId)) return;
+
+            lastRoom.setLastRoom(server.id, roomId);
+        },
+        [params]
+    );
 
     return (
         <div className="w-15 bg-background2 pb-4 h-full">
@@ -18,6 +34,7 @@ export function ServerList() {
                     <Server
                         key={server.id}
                         server={server}
+                        lastRoomId={lastRoom[server.id]}
                     />
                 )}
                 <CreateServer />
@@ -39,14 +56,14 @@ function CreateServer() {
     );
 }
 
-function Server({ server }: { server: Server; }) {
+function Server({ server, lastRoomId }: { server: Server; lastRoomId: number; }) {
     return (
         <Button
             variant="server"
             size="icon"
             asChild
         >
-            <Link to={`/rooms/${server.id}`}>
+            <Link to={`/rooms/${server.id}${lastRoomId ? `/${lastRoomId}` : ""}`}>
                 <ServerIcon
                     id={server.id}
                     name={server.name}
