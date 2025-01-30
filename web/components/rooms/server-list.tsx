@@ -3,8 +3,7 @@ import { useEffect } from "react";
 import { Link, useParams } from "react-router";
 
 import { useLastRoomForServerStore } from "~/common/rooms";
-import { useServerStore } from "~/common/servers";
-import { useCurrentServer } from "~/hooks/server";
+import { useCurrentServer, useServerStore } from "~/common/servers";
 import type { Server } from "~/types/server";
 
 import { CreateServerModal } from "./create-server";

@@ -1,8 +1,8 @@
 import { HashIcon, PlusIcon } from "lucide-react";
 import { Link, useParams } from "react-router";
 
+import { useCurrentServer, useCurrentServerRooms } from "~/common/servers";
 import { useCurrentUserStore } from "~/common/users";
-import { useCurrentServer, useCurrentServerRooms } from "~/hooks/server";
 
 import { CreateRoomModal } from "./create-room";
 import { Button } from "../ui/button";
