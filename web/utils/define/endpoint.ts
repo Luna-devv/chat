@@ -1,12 +1,20 @@
-interface FuncProps<RequireAuth extends boolean> {
+type Endpoint = "server" | "room";
+
+interface FuncProps<EndpointType extends Endpoint, RequireAuth extends boolean> {
     request: Request;
-    serverId: number;
+    serverId: EndpointType extends "server"
+        ? number
+        : null;
+    roomId: EndpointType extends "room"
+        ? number
+        : null;
     userId: RequireAuth extends true
         ? number
         : null;
 }
 
-interface OptionProps<RequireAuth extends boolean> {
+interface OptionProps<EndpointType extends Endpoint, RequireAuth extends boolean> {
+    route_type: EndpointType;
     require_auth: RequireAuth;
     require_server_permissions: RequireAuth extends true
         ? Partial<{
@@ -15,9 +23,9 @@ interface OptionProps<RequireAuth extends boolean> {
         : never;
 }
 
-export function defineEndpoint<RequireAuth extends boolean>(
-    func: (props: FuncProps<RequireAuth>) => Promise<Response | undefined>,
-    options?: Partial<OptionProps<RequireAuth>>
+export function defineEndpoint<EndpointType extends Endpoint, RequireAuth extends boolean>(
+    func: (props: FuncProps<EndpointType, RequireAuth>) => Promise<Response | undefined>,
+    options?: Partial<OptionProps<EndpointType, RequireAuth>>
 ) {
     return {
         func,
@@ -25,8 +33,8 @@ export function defineEndpoint<RequireAuth extends boolean>(
     };
 }
 
-export function defineEndpointOptions<RequireAuth extends boolean>(
-    options: Partial<OptionProps<RequireAuth>>
+export function defineEndpointOptions<EndpointType extends Endpoint, RequireAuth extends boolean>(
+    options: Partial<OptionProps<EndpointType, RequireAuth>>
 ) {
     return options;
 }

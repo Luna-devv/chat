@@ -1,3 +1,4 @@
+import type { Message } from "./messages";
 import type { Room } from "./rooms";
 import type { Server } from "./server";
 import type { CurrentUser } from "./users";
@@ -12,6 +13,9 @@ export interface EventMap {
 
     room_create: (server: RoomCreateEvent) => Awaitable<void>;
     room_delete: (serverId: RoomDeleteEvent) => Awaitable<void>;
+
+    message_create: (message: MessageCreateEvent) => Awaitable<void>;
+    message_delete: (messageId: MessageDeleteEvent) => Awaitable<void>;
 }
 
 export interface GatewayMessage<T extends keyof EventMap = keyof EventMap> {
@@ -30,3 +34,6 @@ export type ServerDeleteEvent = number;
 
 export type RoomCreateEvent = Room;
 export type RoomDeleteEvent = number;
+
+export type MessageCreateEvent = Message;
+export type MessageDeleteEvent = number;

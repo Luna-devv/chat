@@ -29,6 +29,7 @@ for (const filename of apiFiles) {
         }
 
         const serverId = Number(c.req.param("serverId") || "0");
+        const roomId = Number(c.req.param("roomId") || "0");
         const userId = file.options?.require_auth
             ? await auth(via(c.req.raw))
             : null;
@@ -44,6 +45,7 @@ for (const filename of apiFiles) {
             .func({
                 request: c.req.raw,
                 serverId,
+                roomId,
                 userId
             })
             .catch((e) => e);

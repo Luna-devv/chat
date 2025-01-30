@@ -7,7 +7,7 @@ export interface RoomTable {
     name: string;
 
     type: RoomType;
-    flags: Generated<number>;
+    flags: Generated<number>; // currently unused
     position: number;
 
     server_id: number;
