@@ -1,6 +1,7 @@
 package main
 
 import (
+	"chat/gateway/db"
 	"chat/gateway/jwt"
 	"encoding/json"
 	"fmt"
@@ -11,10 +12,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/georgysavva/scany/v2/pgxscan"
 	"github.com/go-redis/redis/v8"
 	"github.com/gorilla/websocket"
-	"github.com/jackc/pgx/v5/pgxpool"
 	_ "github.com/joho/godotenv/autoload"
 	"golang.org/x/net/context"
 )
@@ -36,12 +35,7 @@ var clients = struct {
 }{connected: make(map[string]*Client)}
 
 func main() {
-	ctx := context.Background()
-	db, _ := pgxpool.New(ctx, "postgres://prod:plschangeme@localhost/chat")
-
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		handleWebSocket(w, r, db)
-	})
+	http.HandleFunc("/", handleWebSocket)
 
 	go startRedisSubscription()
 
@@ -49,7 +43,7 @@ func main() {
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
 
-func handleWebSocket(w http.ResponseWriter, r *http.Request, db *pgxpool.Pool) {
+func handleWebSocket(w http.ResponseWriter, r *http.Request) {
 	ws, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		log.Println("WebSocket upgrade failed:", err)
@@ -63,23 +57,18 @@ func handleWebSocket(w http.ResponseWriter, r *http.Request, db *pgxpool.Pool) {
 		return
 	}
 
-	var user UserTable
-	err = pgxscan.Get(context.Background(), db, &user, "SELECT * FROM users WHERE id=$1", session.Id)
+	user, err := db.GetUser(session.Id)
+	servers, err := db.GetServersForUser(session.Id)
 	if err != nil {
 		ws.Close()
-		fmt.Println(err)
 		return
 	}
 
-	var servers []ServerTable
-	err = pgxscan.Select(context.Background(), db, &servers, "SELECT * FROM servers WHERE owner_id=$1", session.Id) // TODO: fix
+	rooms, err := db.GetRoomsByServers(servers)
 	if err != nil {
 		ws.Close()
-		fmt.Println(err)
 		return
 	}
-
-	conID := fmt.Sprintf("%d", time.Now().UnixMilli())
 
 	client := &Client{
 		Conn:      ws,
@@ -87,22 +76,25 @@ func handleWebSocket(w http.ResponseWriter, r *http.Request, db *pgxpool.Pool) {
 		ServerIds: make(map[int]struct{}),
 	}
 
-	//for _, gid := range ServerIds {
-	//	client.ServerIds[gid] = struct{}{}
-	//}
+	for _, server := range servers {
+		client.ServerIds[server.Id] = struct{}{}
+	}
+
+	conId := fmt.Sprintf("%d", time.Now().UnixMilli())
 
 	clients.Lock()
-	clients.connected[conID] = client
+	clients.connected[conId] = client
 	clients.Unlock()
 
-	log.Printf("User %d connected (con: %s)", session.Id, conID)
-	defer disconnectClient(conID)
+	log.Printf("User %d connected (con: %s)", session.Id, conId)
+	defer disconnectClient(conId)
 
 	sendToClient(client, Event{
 		Type: "ready",
 		Data: ReadyEventPayload{
 			User:    user,
 			Servers: servers,
+			Rooms:   rooms,
 		},
 	})
 
