@@ -34,7 +34,17 @@ for (const filename of apiFiles) {
             ? await auth(via(c.req.raw))
             : null;
 
-        if (file.options?.require_auth && !userId) httpError(HttpErrorMessage.InvalidAuthorization);
+        if (file.options?.require_auth && !userId) {
+            return Response.json(
+                {
+                    code: HttpErrorCode.InvalidAuthorization,
+                    message: HttpErrorMessage.InvalidAuthorization
+                },
+                {
+                    status: HttpErrorCode.InvalidAuthorization
+                }
+            );
+        }
 
         if (file.options?.require_server_permissions?.server_owner) {
             const ownerId = await getServerOwnerId(serverId);
