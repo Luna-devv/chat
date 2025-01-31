@@ -29,7 +29,7 @@ export const APIPostRoomMessagesBodySchema = z.object({
 });
 
 export type APIPostRoomMessagesBody = z.infer<typeof APIPostRoomMessagesBodySchema>;
-export type APIPostRoomMessagesResponse = Message;
+export type APIPostRoomMessagesResponse = Message[];
 
 // GET /rooms/1/messages
 export const APIGetRoomMessagesQuerySchema = z.object({

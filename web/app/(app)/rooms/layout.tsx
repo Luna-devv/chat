@@ -6,15 +6,13 @@ import { CurrentUserPanel } from "~/components/rooms/user-panel";
 
 export default function ServerLayout() {
     return (
-        <div className="flex h-screen">
+        <div className="flex h-screen w-full max-h-screen overflow-hidden">
             <div className="flex relative">
                 <ServerList />
                 <RoomList />
                 <CurrentUserPanel />
             </div>
-            <div>
-                <Outlet />
-            </div>
+            <Outlet />
         </div>
     );
 }

@@ -7,6 +7,7 @@ export async function request<T>(
 ): Promise<T | ApiError> {
     const isFormData = body && "append" in body && typeof body.append === "function";
 
+    console.log(`${method} /api${route}`);
     const response = await fetch("/api" + route, {
         method,
         body: body

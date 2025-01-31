@@ -2,16 +2,15 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { useParams } from "react-router";
 
-import { useCurrentRoomMessages } from "~/common/message";
+import { MessageView } from "~/components/rooms/message-view";
 import { Button } from "~/components/ui/button";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "~/components/ui/form";
+import { Form, FormControl, FormField, FormItem, FormMessage } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
 import { request } from "~/lib/api";
 import type { APIPostRoomMessagesBody, APIPostRoomMessagesResponse } from "~/types/messages";
 import { APIPostRoomMessagesBodySchema } from "~/types/messages";
 
 export default function Room() {
-    const messages = useCurrentRoomMessages();
     const params = useParams();
 
     const form = useForm<APIPostRoomMessagesBody>({
@@ -28,23 +27,19 @@ export default function Room() {
     }
 
     return (
-        <div>
-            {JSON.stringify(messages)}
+        <div className="flex flex-col h-screen w-full">
+            <MessageView />
 
             <Form {...form}>
                 <form
-
                     onSubmit={form.handleSubmit(handle)}
-                    className="space-y-2"
+                    className="flex gap-2 m-4 w-full"
                 >
                     <FormField
                         control={form.control}
                         name="content"
                         render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>
-                                    Room Name
-                                </FormLabel>
+                            <FormItem className="w-full">
                                 <FormControl>
                                     <Input
                                         type="content"
@@ -58,7 +53,6 @@ export default function Room() {
                     />
 
                     <Button
-                        className="mt-auto"
                         variant="secondary"
                         type="submit"
                     >

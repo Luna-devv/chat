@@ -6,17 +6,18 @@ import { defineDataStore } from "~/utils/define/data-store";
 
 export const useRoomStore = defineDataStore<Room>();
 
-type Props = Record<number, number> & {
+interface Props {
+    [x: `${number}`]: number;
     setLastRoom: (serverId: number, channelId: number) => void;
-};
+}
 
 export const useLastRoomForServerStore = create<Props>()(
     persist(
         (set) => ({
-            setLastRoom: (serverId, channelId) => set({ [serverId]: channelId })
+            setLastRoom: (serverId, channelId) => set({ [`${serverId}`]: channelId })
         }),
         {
-            name: "last-server-room",
+            name: "last-server-room-ids",
             storage: createJSONStorage(() => localStorage)
         }
     )
