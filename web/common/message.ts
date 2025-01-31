@@ -23,7 +23,7 @@ interface Props {
     setLastMessageId: (channelId: number, messageId: number) => void;
 }
 
-export const useLastMessageIdForRoomStore = create<Props>()(
+export const useLastMessageIdForRoom = create<Props>()(
     persist(
         (set) => ({
             setLastMessageId: (channelId, messageId) => set({ [`${channelId}`]: messageId })

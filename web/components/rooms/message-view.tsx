@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import { useParams } from "react-router";
 
-import { useCurrentRoomMessages, useLastMessageIdForRoomStore, useMessageStore } from "~/common/message";
+import { useCurrentRoomMessages, useLastMessageIdForRoom, useMessageStore } from "~/common/message";
 import { useUserStore } from "~/common/user";
 import { request } from "~/lib/api";
 import type { APIPostRoomMessagesResponse } from "~/types/messages";
@@ -13,7 +13,7 @@ export function MessageView() {
     const users = useUserStore((store) => store.items);
     const addMessage = useMessageStore((store) => store.add);
     const addUser = useUserStore((store) => store.add);
-    const lastMessageIds = useLastMessageIdForRoomStore();
+    const lastMessageIds = useLastMessageIdForRoom();
     const scroll = useRef<HTMLDivElement>(null);
     const params = useParams();
 
