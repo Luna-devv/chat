@@ -1,6 +1,7 @@
 import { useMessageStore } from "~/common/message";
 import { useRoomStore } from "~/common/rooms";
 import { useServerStore } from "~/common/servers";
+import { useUserStore } from "~/common/user";
 import { useCurrentUserStore } from "~/common/users";
 import type { EventMap } from "~/types/gateway";
 
@@ -34,8 +35,13 @@ export const events = {
     },
 
     message_create: (message) => {
-        const { add } = useMessageStore.getState();
-        add(message);
+        const { add: addUser } = useUserStore.getState();
+        addUser(message.author);
+
+        Object.assign(message, { author: undefined });
+
+        const { add: addMessage } = useMessageStore.getState();
+        addMessage(message);
     },
     message_delete: (messageId) => {
         const { remove } = useMessageStore.getState();

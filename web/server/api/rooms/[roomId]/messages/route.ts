@@ -1,8 +1,12 @@
+import { jsonObjectFrom } from "kysely/helpers/postgres";
+
 import { HttpErrorMessage } from "~/constants/http-error";
 import { db } from "~/db";
 import { APIGetRoomMessagesQuerySchema, APIPostRoomMessagesBodySchema, MessageType } from "~/types/messages";
+import type { User } from "~/types/users";
 import { defineEndpoint, defineEndpointOptions } from "~/utils/define/endpoint";
 import { emitGatewayEvent } from "~/utils/emit-event";
+import { makePublicUser } from "~/utils/helpers/make-public-user";
 import { httpError } from "~/utils/http-error";
 
 const options = defineEndpointOptions({
@@ -39,12 +43,26 @@ async function getMessages(request: Request, roomId: number) {
         .selectFrom("messages")
         .where("room_id", "=", roomId)
         .where("id", "<", data.before)
-        .selectAll()
         .limit(data.limit)
         .orderBy("created_at desc")
+        .selectAll()
+        .select((eb) => [
+            jsonObjectFrom(
+                eb
+                    .selectFrom("users")
+                    .whereRef("messages.author_id", "=", "users.id")
+                    .select(["id", "username", "nickname", "flags", "created_at", "banner_id", "avatar_id"])
+            )
+                .as("author")
+        ])
         .execute();
 
-    return Response.json(messages);
+    return Response.json(
+        messages.map((message) => {
+            Object.assign(message, { author: makePublicUser(message.author as User) });
+            return message;
+        })
+    );
 }
 
 async function createMessage(request: Request, userId: number, serverId: number, roomId: number) {

@@ -1,6 +1,8 @@
 import type { ColumnType, Generated, Selectable } from "kysely";
 import { z } from "zod";
 
+import type { PublicUser } from "./users";
+
 export interface MessageTable {
     id: Generated<number>;
 
@@ -21,7 +23,9 @@ export enum MessageType {
     Default = 0
 }
 
-export type Message = Selectable<MessageTable>;
+export type Message = Selectable<MessageTable> & {
+    author: PublicUser;
+};
 
 // POST /rooms/1/messages
 export const APIPostRoomMessagesBodySchema = z.object({
