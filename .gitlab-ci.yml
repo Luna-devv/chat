@@ -9,9 +9,7 @@ web-install-dependencies:
     stage: web-install-dependencies
     image: node:latest
     before_script:
-        - rm -rf ~/.cache/corepack
-        - corepack enable
-        - corepack prepare pnpm@latest-10 --activate
+        - npm i -g pnpm
         - pnpm config set store-dir .pnpm-store
     script:
         - cd ./web
@@ -29,8 +27,7 @@ web-lint:
     stage: web-lint
     image: node:latest
     before_script:
-        - corepack enable
-        - corepack prepare pnpm@latest-10 --activate
+        - npm i -g pnpm
         - pnpm config set store-dir .pnpm-store
     script:
         - cd ./web
@@ -49,8 +46,7 @@ web-build:
     stage: web-build
     image: node:latest
     before_script:
-        - corepack enable
-        - corepack prepare pnpm@latest-10 --activate
+        - npm i -g pnpm
         - pnpm config set store-dir .pnpm-store
     script:
         - cd ./web
@@ -73,8 +69,7 @@ web-typecheck:
     stage: web-typecheck
     image: node:latest
     before_script:
-        - corepack enable
-        - corepack prepare pnpm@latest-10 --activate
+        - npm i -g pnpm
         - pnpm config set store-dir .pnpm-store
     script:
         - cd ./web
