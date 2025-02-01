@@ -1,3 +1,5 @@
+import { useMemo } from "react";
+import { useParams } from "react-router";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 
@@ -22,3 +24,13 @@ export const useLastRoomForServerStore = create<Props>()(
         }
     )
 );
+
+export function useCurrenRoom() {
+    const rooms = useRoomStore((store) => store.items);
+    const params = useParams();
+
+    return useMemo(
+        () => rooms.find((r) => r.id === Number(params.rid)),
+        [rooms, params]
+    );
+}

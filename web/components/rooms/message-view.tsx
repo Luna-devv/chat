@@ -7,6 +7,7 @@ import { request } from "~/lib/api";
 import type { APIPostRoomMessagesResponse } from "~/types/messages";
 import { groupMessages } from "~/utils/group-messages";
 
+import { MessageHistoryStart } from "./message-history-start";
 import { MessageGroup } from "../message/group";
 
 const MAX_MESSAGE_FETCH_LIMIT = 50 as const;
@@ -68,6 +69,8 @@ export function MessageView() {
 
     return (
         <div className="w-full h-full overflow-y-scroll overflow-x-hidden gap-3 flex flex-col justify-end" ref={scroll}>
+            <MessageHistoryStart />
+
             {groupedMessages.map((group) => (
                 <MessageGroup
                     key={"g" + group.id}
