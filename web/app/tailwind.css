@@ -37,7 +37,7 @@
         @apply border-border ease-in-out;
     }
     body {
-        @apply bg-background text-foreground;
+        @apply bg-background text-foreground max-w-screen overflow-x-hidden;
     }
     button {
         @apply cursor-pointer

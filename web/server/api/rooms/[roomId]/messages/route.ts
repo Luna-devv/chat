@@ -2,6 +2,7 @@ import { jsonObjectFrom } from "kysely/helpers/postgres";
 
 import { HttpErrorMessage } from "~/constants/http-error";
 import { db } from "~/db";
+import type { Message } from "~/types/messages";
 import { APIGetRoomMessagesQuerySchema, APIPostRoomMessagesBodySchema, MessageType } from "~/types/messages";
 import type { User } from "~/types/users";
 import { defineEndpoint, defineEndpointOptions } from "~/utils/define/endpoint";
@@ -69,16 +70,26 @@ async function createMessage(request: Request, userId: number, serverId: number,
     const { data, success, error } = APIPostRoomMessagesBodySchema.safeParse(await request.json());
     if (!success) throw httpError(HttpErrorMessage.BadRequest, error);
 
-    const message = await db
-        .insertInto("messages")
-        .values({
-            content: data.content,
-            type: MessageType.Default,
-            room_id: roomId,
-            author_id: userId
-        })
-        .returningAll()
-        .executeTakeFirst();
+    const message = await db.transaction().execute(async (trx) => {
+        const message = await trx
+            .insertInto("messages")
+            .values({
+                content: data.content.trim(),
+                type: MessageType.Default,
+                room_id: roomId,
+                author_id: userId
+            })
+            .returningAll()
+            .executeTakeFirstOrThrow();
+
+        const author = await trx
+            .selectFrom("users")
+            .select(["id", "username", "nickname", "flags", "created_at", "banner_id", "avatar_id"])
+            .executeTakeFirst();
+
+        Object.assign(message, { author });
+        return message as Message;
+    });
 
     if (!message) throw httpError();
 

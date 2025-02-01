@@ -59,7 +59,7 @@ export function MessageView() {
     }, [params]);
 
     return (
-        <div className="w-full h-full p-4 overflow-y-scroll overflow-x-hidden" ref={scroll}>
+        <div className="w-full h-full overflow-y-scroll overflow-x-hidden" ref={scroll}>
             {messages.map((message) => <p key={message.id}>
                 {users.find((user) => user.id === message.author_id)?.username}: {message.content}
             </p>)}
