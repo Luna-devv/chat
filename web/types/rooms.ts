@@ -13,7 +13,7 @@ export interface RoomTable {
     server_id: number;
     parent_room_id: number | null;
 
-    created_at: ColumnType<Date, string | undefined, never>;
+    created_at: ColumnType<string, string | undefined, never>;
 }
 
 export enum RoomType {

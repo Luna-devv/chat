@@ -15,8 +15,8 @@ export interface MessageTable {
     author_id: number;
     attachment_ids: Generated<number[]>; // currently unused
 
-    edited_at: ColumnType<Date, string | undefined, never> | null;
-    created_at: ColumnType<Date, string | undefined, never>;
+    edited_at: ColumnType<string, string | undefined, never> | null;
+    created_at: ColumnType<string, string | undefined, never>;
 }
 
 export enum MessageType {

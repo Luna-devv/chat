@@ -15,7 +15,7 @@ export interface UserTable {
     avatar_id: number | null;
     banner_id: number | null;
 
-    created_at: ColumnType<Date, string | undefined, never>;
+    created_at: ColumnType<string, string | undefined, never>;
 }
 
 export type User = Selectable<UserTable>;
