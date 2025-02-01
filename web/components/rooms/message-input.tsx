@@ -37,7 +37,7 @@ export function MessageInput() {
     });
 
     return (
-        <div>
+        <div className="m-3">
             {focused &&
                 <AutoComplete
                     options={filteredOptions}
@@ -63,7 +63,9 @@ export function MessageInput() {
                         `/rooms/${params.rid}/messages`,
                         { content: inputValue }
                     );
+
                     if ("message" in message) return; // TODO: error?
+                    setInputValue("");
                 }}
                 {...props}
             />
