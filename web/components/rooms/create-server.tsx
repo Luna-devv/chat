@@ -1,5 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Turnstile, type TurnstileInstance } from "@marsidev/react-turnstile";
+import { ArrowLeftIcon } from "lucide-react";
 import { type ReactNode, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 
@@ -32,7 +33,7 @@ export function CreateServerModal({
         <Dialog
             open={open}
             onOpenChange={(isOpen) => {
-                if (!isOpen) setState(State.Choose);
+                if (!isOpen) setTimeout(() => setState(State.Choose), 800);
                 setOpen(isOpen);
             }}
         >
@@ -48,7 +49,10 @@ export function CreateServerModal({
                 </DialogHeader>
                 {state === State.Choose
                     ? <Choose onChange={setState} />
-                    : <CreateServer onSuccess={() => setOpen(false)} />
+                    : <CreateServer
+                        onSuccess={() => setOpen(false)}
+                        onBack={() => setState(State.Choose)}
+                    />
                 }
             </DialogContent>
         </Dialog>
@@ -93,9 +97,11 @@ function Choose({
 }
 
 function CreateServer({
-    onSuccess
+    onSuccess,
+    onBack
 }: {
     onSuccess: () => unknown;
+    onBack: () => unknown;
 }) {
     const captcha = useRef<TurnstileInstance | null>(null);
 
@@ -160,14 +166,23 @@ function CreateServer({
                     />
                 }
 
-                <Button
-                    className="mt-auto w-24"
-                    variant="secondary"
-                    type="submit"
-                    disabled={!name || !captchaKey}
-                >
-                    Create Server
-                </Button>
+                <div className="pt-1 flex justify-between items-end">
+                    <Button
+                        variant="secondary"
+                        type="submit"
+                        disabled={!name || !captchaKey}
+                    >
+                        Create Server
+                    </Button>
+                    <Button
+                        variant="link"
+                        size="sm"
+                        onClick={onBack}
+                    >
+                        <ArrowLeftIcon />
+                        Join server instead
+                    </Button>
+                </div>
             </form>
         </Form>
     );

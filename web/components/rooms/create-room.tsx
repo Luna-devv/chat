@@ -94,7 +94,7 @@ function CreateRoom({
                 />
 
                 <Button
-                    className="mt-auto"
+                    className="mt-1"
                     variant="secondary"
                     type="submit"
                     disabled={!name}
