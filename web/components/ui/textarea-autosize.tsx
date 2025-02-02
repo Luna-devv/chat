@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useImperativeHandle, useRef, useState } from "react";
 
 import { cn } from "~/lib/utils";
 
@@ -10,10 +10,12 @@ const LINE_HEIGHT = 32 as const;
 const TextareaAutosize = React.forwardRef<
     HTMLTextAreaElement,
     React.ComponentProps<"textarea">
->(({ className, onChange, onKeyDown, style, ...props }, _ref) => {
+>(({ className, onChange, onKeyDown, style, ...props }, ref) => {
     const [value, setValue] = useState<string>("");
     const [rows, setRows] = useState<number>(1);
     const textarea = useRef<HTMLTextAreaElement>(null);
+
+    useImperativeHandle(ref, () => textarea.current!);
 
     function handleInput(e: React.ChangeEvent<HTMLTextAreaElement>) {
         onChange?.(e);

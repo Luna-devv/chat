@@ -2,7 +2,7 @@
 // https://github.com/ianstormtaylor/slate/blob/main/site/examples/ts/mentions.tsx
 // ... to complicated,,
 
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useParams } from "react-router";
 
 import { request } from "~/lib/api";
@@ -15,6 +15,7 @@ import { TextareaAutosize } from "../ui/textarea-autosize";
 
 export function MessageInput() {
     const [inputValue, setInputValue] = useState<string>("");
+    const textarea = useRef<HTMLTextAreaElement | null>(null);
     const params = useParams();
 
     const options = useMemo(() => [
@@ -24,28 +25,58 @@ export function MessageInput() {
         { id: 4, name: "random", type: AutocompleteType.Channel }
     ], []);
 
-    // TODO: fix
-    // https://discord.com/channels/828676951023550495/939999913406787654/1335260859710312549
-    function handleSelect(selected: Option) {
-        const prefix = selected.type === AutocompleteType.Channel ? "#" : "@";
-        setInputValue((prev) => prev.replace(/[@#][\w]*$/, `${prefix}${selected.name}`));
-    }
-
-    const { onChange, filteredOptions, selectedIndex, focused, onKeyDown, ...props } = useAutocomplete({
+    const { filteredOptions, focused, onChange, onKeyDown, onSelect, ...props } = useAutocomplete({
         options,
-        onSelect: handleSelect
+        handleSelect
     });
+
+    function handleSelect(selected: Option, cursor: number) {
+        const prefix = selected.type === AutocompleteType.Channel ? "#" : "@";
+        textarea.current?.focus();
+
+        setInputValue((prev) => {
+            const mentionRegex = /[@#][\w]*/g;
+            let match;
+            let closestMatch: RegExpExecArray | null = null;
+
+            while ((match = mentionRegex.exec(prev)) !== null) {
+                const start = match.index;
+                const end = start + match[0].length;
+
+                if (start <= cursor && cursor <= end) {
+                    closestMatch = match;
+                    break;
+                }
+            }
+
+            if (!closestMatch) return prev;
+
+            const before = prev.slice(0, closestMatch.index);
+            const replacement = `${prefix}${selected.name} `;
+            const after = prev.slice(closestMatch.index + closestMatch[0].length);
+
+            const newCursor = before.length + replacement.length;
+
+            // Update cursor position after re-render
+            setTimeout(() => {
+                textarea.current?.setSelectionRange(newCursor, newCursor);
+            }, 0);
+
+            return before + replacement + after;
+        });
+    }
 
     return (
         <div className="m-3">
             {focused &&
                 <AutoComplete
                     options={filteredOptions}
-                    selectedIndex={selectedIndex}
-                    onSelect={handleSelect}
+                    onSelect={onSelect}
+                    {...props}
                 />
             }
             <TextareaAutosize
+                ref={textarea}
                 value={inputValue}
                 placeholder="Type your message..."
                 onChange={(e) => {
@@ -55,8 +86,10 @@ export function MessageInput() {
                 onKeyDown={(e) => {
                     onKeyDown(e);
 
-                    if (e.key !== "Enter" || e.shiftKey) return;
+                    if (e.key !== "Enter" || e.shiftKey || filteredOptions.length || !focus) return;
                     e.preventDefault();
+                    console.log("post");
+                    return;
 
                     const message = request<APIPostRoomMessagesResponse>(
                         "post",

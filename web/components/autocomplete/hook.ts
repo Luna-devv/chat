@@ -13,7 +13,7 @@ export interface Option {
 
 interface UseAutocompleteProps {
     options: Option[];
-    onSelect: (selected: Option) => void;
+    handleSelect: (selected: Option, cursor: number) => void;
 }
 
 interface UseAutocompleteReturn {
@@ -21,25 +21,32 @@ interface UseAutocompleteReturn {
     onKeyDown: (e: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
     onFocus: (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
     onBlur: (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
+    onSelect: () => void;
+    setWithin: React.Dispatch<React.SetStateAction<boolean>>;
     filteredOptions: Option[];
     selectedIndex: number;
     focused: boolean;
+    within: boolean;
 }
 
 export function useAutocomplete({
     options,
-    onSelect
+    handleSelect
 }: UseAutocompleteProps): UseAutocompleteReturn {
     const [filteredOptions, setFilteredOptions] = useState<Option[]>([]);
     const [selectedIndex, setSelectedIndex] = useState(0);
     const [trigger, setTrigger] = useState<string | null>(null);
     const [focused, setFocused] = useState(false);
+    const [within, setWithin] = useState(false);
     const [search, setSearch] = useState("");
+    const [cursor, setCursor] = useState(0);
 
     const onChange = useCallback(
         (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
             const value = e.target.value;
+
             const cursorPosition = e.target.selectionStart || 0;
+            setCursor(cursorPosition);
 
             const textBeforeCursor = value.slice(0, cursorPosition);
             const matches = textBeforeCursor.match(/[@#][\w]*$/);
@@ -56,6 +63,17 @@ export function useAutocomplete({
         []
     );
 
+    const onSelect = useCallback(
+        () => {
+            handleSelect(filteredOptions[selectedIndex], cursor);
+            setTrigger(null);
+            setWithin(false);
+            setSearch("");
+        },
+        [filteredOptions, selectedIndex]
+    );
+
+
     const onKeyDown = useCallback(
         (e: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>) => {
             if (!trigger || !filteredOptions.length) return;
@@ -71,10 +89,8 @@ export function useAutocomplete({
                     break;
                 case "Enter":
                 case "Tab":
+                    onSelect();
                     e.preventDefault();
-                    onSelect(filteredOptions[selectedIndex]);
-                    setTrigger(null);
-                    setSearch("");
                     break;
             }
         },
@@ -87,13 +103,12 @@ export function useAutocomplete({
     );
 
     const onBlur = useCallback(
-        () => setFocused(false),
-        []
+        () => within ? null : setFocused(false),
+        [within]
     );
 
     useEffect(
         () => {
-            console.log(trigger);
             if (!trigger) {
                 setFilteredOptions([]);
                 return;
@@ -125,8 +140,11 @@ export function useAutocomplete({
         onKeyDown,
         onFocus,
         onBlur,
+        onSelect,
+        setWithin,
         filteredOptions,
         selectedIndex,
-        focused
+        focused,
+        within
     };
 }
