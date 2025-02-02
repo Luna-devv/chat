@@ -4,7 +4,7 @@ import { useParams } from "react-router";
 import { useCurrentRoomMessages, useLastMessageIdForRoom, useMessageStore } from "~/common/message";
 import { useUserStore } from "~/common/user";
 import { request } from "~/lib/api";
-import type { APIPostRoomMessagesResponse } from "~/types/messages";
+import type { APIGetRoomMessagesResponse } from "~/types/messages";
 import { groupMessages } from "~/utils/group-messages";
 
 import { MessageHistoryStart } from "./message-history-start";
@@ -35,7 +35,7 @@ export function MessageView() {
         const search = new URLSearchParams({ limit: MAX_MESSAGE_FETCH_LIMIT.toString() });
         if (oldestMessageId) search.append("before", oldestMessageId.toString());
 
-        const msgs = await request<APIPostRoomMessagesResponse>("get", `/rooms/${params.rid}/messages?${search.toString()}`);
+        const msgs = await request<APIGetRoomMessagesResponse>("get", `/rooms/${params.rid}/messages?${search.toString()}`);
         if (!Array.isArray(msgs)) return; // TODO: error?
 
         // 👉 store message and message author properly

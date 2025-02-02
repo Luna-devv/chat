@@ -2,6 +2,7 @@ import { z } from "zod";
 
 import { Config } from "~/constants/config";
 
+// POST /auth/register
 export const APIPostAuthRegisterBodySchema = z.object({
     email: z.string().email().max(64).transform((str) => str.toLowerCase()),
     username: z.string().regex(Config.username_constraint),
@@ -13,7 +14,6 @@ export enum UserAuthRequiredAction {
     VerifyEmail = 0
 }
 
-// POST /auth/register
 export type APIPostAuthRegisterBody = z.infer<typeof APIPostAuthRegisterBodySchema>;
 export interface APIPostAuthRegisterResponse {
     required_actions: UserAuthRequiredAction[];
