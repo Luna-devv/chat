@@ -1,3 +1,4 @@
+import type { ServerMember } from "./members";
 import type { Message } from "./messages";
 import type { Room } from "./rooms";
 import type { Server } from "./server";
@@ -25,6 +26,7 @@ export interface GatewayMessage<T extends keyof EventMap = keyof EventMap> {
 
 export interface ReadyEvent {
     user: CurrentUser;
+    current_user_members: ServerMember[];
     servers: Server[];
     rooms: Room[];
 }

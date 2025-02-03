@@ -58,12 +58,8 @@ func handleWebSocket(w http.ResponseWriter, r *http.Request) {
 	}
 
 	user, err := db.GetUser(session.Id)
-	servers, err := db.GetServersForUser(session.Id)
-	if err != nil {
-		ws.Close()
-		return
-	}
-
+	members, err := db.GetServerMembersForUser(session.Id)
+	servers, err := db.GetServersByMembers(members)
 	rooms, err := db.GetRoomsByServers(servers)
 	if err != nil {
 		ws.Close()
@@ -93,6 +89,7 @@ func handleWebSocket(w http.ResponseWriter, r *http.Request) {
 		Type: "ready",
 		Data: ReadyEventPayload{
 			User:    user,
+			CurrentUserMembers: members,
 			Servers: servers,
 			Rooms:   rooms,
 		},

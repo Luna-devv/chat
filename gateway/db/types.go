@@ -47,3 +47,10 @@ type RoomTable struct {
 
 	CreatedAt time.Time `json:"created_at"`
 }
+
+type ServerMemberTable struct {
+	ServerId   int `json:"server_id"`
+	UserId   int `json:"user_id"`
+
+	JoinedAt time.Time `json:"joined_at"`
+}

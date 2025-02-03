@@ -20,6 +20,7 @@ type Event struct {
 
 type ReadyEventPayload struct {
 	User    db.UserTable     `json:"user"`
+	CurrentUserMembers []db.ServerMemberTable `json:"current_user_members"`
 	Servers []db.ServerTable `json:"servers"`
 	Rooms   []db.RoomTable   `json:"rooms"`
 }
