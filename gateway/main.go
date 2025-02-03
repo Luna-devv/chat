@@ -88,10 +88,10 @@ func handleWebSocket(w http.ResponseWriter, r *http.Request) {
 	sendToClient(client, Event{
 		Type: "ready",
 		Data: ReadyEventPayload{
-			User:    user,
+			User:               user,
 			CurrentUserMembers: members,
-			Servers: servers,
-			Rooms:   rooms,
+			Servers:            servers,
+			Rooms:              rooms,
 		},
 	})
 
