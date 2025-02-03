@@ -36,13 +36,12 @@ async function createInvite(userId: number, serverId: number, roomId: number) {
             .where("expires_at", "is", null) // idk what logic to apply if a user selects an expired timestamp
             .executeTakeFirst();
 
-        console.log(existingInvite);
         if (existingInvite) return existingInvite;
 
         return db
             .insertInto("invites")
             .values({
-                code: generateInviteCode(), // pray``
+                code: generateInviteCode(), // pray
 
                 server_id: serverId,
                 room_id: roomId,

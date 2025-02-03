@@ -82,7 +82,7 @@ function Choose({
                     <Label htmlFor="server-invite">Join a Server</Label>
                     <Input
                         id="server-invite"
-                        placeholder={`${Config.base_url}/i/${Config.platform_name.replace(/ +/, "-").toLowerCase()}`}
+                        placeholder="0eKQKZis"
                     />
                 </div>
                 <Button

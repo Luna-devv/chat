@@ -1,9 +1,13 @@
+import { ClipboardPenIcon } from "lucide-react";
 import type { ReactNode } from "react";
 import { useEffect, useState } from "react";
 
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "~/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "~/components/ui/dialog";
 import { request } from "~/lib/api";
 import type { APIPostRoomInvitesResponse } from "~/types/invites";
+
+import { Button } from "../ui/button";
+import { Input } from "../ui/input";
 
 export function CreateInviteModal({
     children,
@@ -46,8 +50,20 @@ export function CreateInviteModal({
             <DialogContent>
                 <DialogHeader>
                     <DialogTitle>Create an Invite</DialogTitle>
+                    <DialogDescription>This invite code can be shared to join this server.</DialogDescription>
                 </DialogHeader>
-                {invite?.code}
+                <div className="flex gap-2 items-end">
+                    <Input
+                        value={invite?.code}
+                        readOnly
+                    />
+                    <Button
+                        variant="secondary"
+                        onClick={() => navigator.clipboard.writeText(invite?.code || "")}
+                    >
+                        <ClipboardPenIcon />
+                    </Button>
+                </div>
             </DialogContent>
         </Dialog>
 
