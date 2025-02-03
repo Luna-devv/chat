@@ -28,7 +28,7 @@ export function CreateRoomModal({
             </DialogTrigger>
             <DialogContent>
                 <DialogHeader>
-                    <DialogTitle>Create a new room</DialogTitle>
+                    <DialogTitle>Create a new Room</DialogTitle>
                 </DialogHeader>
                 <CreateRoom onSuccess={() => setOpen(false)} />
             </DialogContent>

@@ -1,10 +1,12 @@
-import { HashIcon, PlusIcon } from "lucide-react";
+import { HashIcon, PlusIcon, UserRoundPlusIcon } from "lucide-react";
 import { Link, useParams } from "react-router";
 
 import { useCurrentServer, useCurrentServerRooms } from "~/common/servers";
 import { useCurrentUserStore } from "~/common/users";
 
+import { CreateInviteModal } from "./create-invite";
 import { CreateRoomModal } from "./create-room";
+import { RoomServerHeader } from "./server/header";
 import { Button } from "../ui/button";
 import { Separator } from "../ui/separator";
 
@@ -21,9 +23,7 @@ export function RoomList() {
 
     return (
         <div className="w-56 bg-background2">
-            <div className="bg-border p-3 font-medium text-sm">
-                {server.name}
-            </div>
+            <RoomServerHeader />
 
             <div className="p-2.5 space-y-px">
                 {rooms
@@ -34,10 +34,17 @@ export function RoomList() {
                             asChild
                             variant="room"
                             data-selected={Number(params.rid) === room.id}
+                            className="group"
                         >
                             <Link to={`/rooms/${server.id}/${room.id}`}>
                                 <HashIcon />
                                 {room.name}
+                                <CreateInviteModal
+                                    className="ml-auto hidden group-hover:block"
+                                    roomId={room.id}
+                                >
+                                    <UserRoundPlusIcon />
+                                </CreateInviteModal>
                             </Link>
                         </Button>
                     )
