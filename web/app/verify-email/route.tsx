@@ -89,10 +89,10 @@ function Complete({ hash }: { hash: string; }) {
         <AuthContent>
 
             {error &&
-                    <Alert variant="destructive">
-                        <TriangleAlertIcon className="size-5" />
-                        <AlertDescription>{error}</AlertDescription>
-                    </Alert>
+                <Alert variant="destructive">
+                    <TriangleAlertIcon className="size-5" />
+                    <AlertDescription>{error}</AlertDescription>
+                </Alert>
             }
 
             <Form {...form}>
