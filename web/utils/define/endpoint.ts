@@ -1,20 +1,34 @@
 import type { Context } from "hono";
 
+import type { ServerMember } from "~/types/members";
+import type { Room } from "~/types/rooms";
+import type { Server } from "~/types/server";
+
 type Endpoint = "server" | "room" | undefined;
 
 interface FuncProps<EndpointType extends Endpoint, RequireAuth extends boolean> {
     request: Request;
-    serverId: EndpointType extends "server"
-        ? number
-        : null;
-    roomId: EndpointType extends "room"
-        ? number
-        : null;
+    c: Context;
+
     userId: RequireAuth extends true
         ? number
         : null;
 
-    c: Context;
+    server: EndpointType extends "server"
+        ? Server
+        : EndpointType extends "room"
+            ? Server
+            : null;
+    member: EndpointType extends "server"
+        ? Pick<ServerMember, "joined_at">
+        : EndpointType extends "room"
+            ? Pick<ServerMember, "joined_at">
+            : null;
+    room: EndpointType extends "room"
+        ? Room
+        : null;
+
+
 }
 
 interface OptionProps<EndpointType extends Endpoint, RequireAuth extends boolean> {

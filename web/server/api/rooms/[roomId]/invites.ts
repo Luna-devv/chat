@@ -8,20 +8,8 @@ const options = defineEndpointOptions({
     require_auth: true
 });
 
-export default defineEndpoint(async ({ request, userId, roomId }) => {
-
-    // me when no member logic exists,,,
-    const room = await db
-        .selectFrom("rooms")
-        .where("rooms.id", "=", roomId)
-        .innerJoin("servers", "servers.id", "server_id")
-        .select(["server_id", "owner_id"])
-        .executeTakeFirst();
-
-    if (userId !== room?.owner_id) throw httpError(HttpErrorMessage.MissingAccess);
-
-    if (request.method === "POST") return createInvite(userId, room.server_id, roomId);
-
+export default defineEndpoint(async ({ request, userId, room }) => {
+    if (request.method === "POST") return createInvite(userId, room.server_id, room.id);
     httpError(HttpErrorMessage.NotFound);
 }, options);
 

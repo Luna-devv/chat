@@ -1,8 +1,10 @@
+import type { Context } from "hono";
 import { Hono } from "hono";
+import { jsonObjectFrom } from "kysely/helpers/postgres";
 import { join } from "path";
 
 import { HttpErrorCode, HttpErrorMessage } from "~/constants/http-error";
-import { getServerOwnerId } from "~/db/utils/servers";
+import { db } from "~/db";
 import { auth, via } from "~/utils/auth";
 import type { defineEndpoint } from "~/utils/define/endpoint";
 import { httpError } from "~/utils/http-error";
@@ -24,40 +26,29 @@ for (const filename of apiFiles) {
     const { default: file } = await import(filename /* @vite-ignore */) as RouteFile;
 
     app.all("/api" + path, async (c) => {
-        if (file.options?.require_server_permissions && !path.includes("/:serverId")) {
-            console.log(new Error("Cannot use server permission constrains on non-server routes: " + path));
-        }
-
-        const serverId = Number(c.req.param("serverId") || "0");
-        const roomId = Number(c.req.param("roomId") || "0");
-        const userId = file.options?.require_auth
-            ? await auth(via(c.req.raw))
-            : null;
-
-        if (file.options?.require_auth && !userId) {
+        const ctx = await getContext(c, file);
+        if (typeof ctx === "string") {
             return Response.json(
                 {
-                    code: HttpErrorCode.InvalidAuthorization,
-                    message: HttpErrorMessage.InvalidAuthorization
+                    code: HttpErrorCode.NotFound,
+                    message: HttpErrorMessage.NotFound
                 },
                 {
-                    status: HttpErrorCode.InvalidAuthorization
+                    status: HttpErrorCode.NotFound
                 }
             );
-        }
-
-        if (file.options?.require_server_permissions?.server_owner) {
-            const ownerId = await getServerOwnerId(serverId);
-            if (userId !== ownerId) httpError(HttpErrorMessage.MissingAccess);
         }
 
         return file
             .func({
                 request: c.req.raw,
-                serverId,
-                roomId,
-                userId,
-                c
+                c,
+
+                userId: ctx.userId,
+
+                server: ctx.server,
+                member: ctx.member,
+                room: ctx.room
             })
             .catch((e) => e);
     });
@@ -74,3 +65,109 @@ app.all("/api/*", () => {
         }
     );
 });
+
+async function getContext(c: Context, file: ReturnType<typeof defineEndpoint>) {
+    const userId = file.options?.require_auth
+        ? await auth(via(c.req.raw))
+        : null;
+
+    if (file.options?.require_auth && !userId) return HttpErrorMessage.InvalidAuthorization;
+
+    const ctx = await getContextData(c, file, userId!);
+    if (typeof ctx === "string") return ctx;
+
+    return {
+        userId,
+
+        server: ctx.server,
+        member: ctx.member,
+        room: ctx.room
+    };
+}
+
+function getContextData(c: Context, file: ReturnType<typeof defineEndpoint>, userId: number) {
+    switch (file.options?.route_type) {
+        case "server": return getContextForServer(c, file, userId);
+        case "room": return getContextForRoom(c, file, userId);
+        default: return { server: null, member: null, room: null };
+    }
+}
+
+async function getContextForServer(c: Context, file: ReturnType<typeof defineEndpoint>, userId: number) {
+    const serverId = Number(c.req.param("serverId")) | 0;
+
+    const server = await db
+        .selectFrom("servers")
+        .selectAll()
+        .where("id", "=", serverId)
+        .select((eb) => [
+            jsonObjectFrom(
+                eb
+                    .selectFrom("server_members")
+                    .whereRef("servers.id", "=", "server_members.server_id")
+                    .where("server_members.user_id", "=", userId)
+                    .select("server_members.joined_at")
+            )
+                .as("member")
+        ])
+        .executeTakeFirst();
+
+    if (!server) return HttpErrorMessage.UnknownServer;
+    if (!server.member) return HttpErrorMessage.MissingAccess;
+
+    if (file.options?.require_server_permissions?.server_owner) {
+        if (userId !== server.owner_id) httpError(HttpErrorMessage.MissingAccess);
+    }
+
+    return {
+        member: server.member,
+        get server() {
+            Object.assign(server, { member: undefined });
+            return server;
+        },
+        room: null
+    };
+}
+
+async function getContextForRoom(c: Context, file: ReturnType<typeof defineEndpoint>, userId: number) {
+    const roomId = Number(c.req.param("roomId")) | 0;
+
+    const room = await db
+        .selectFrom("rooms")
+        .selectAll()
+        .where("id", "=", roomId)
+        .select((eb) => [
+            jsonObjectFrom(
+                eb
+                    .selectFrom("servers")
+                    .whereRef("rooms.server_id", "=", "servers.id")
+                    .selectAll()
+            )
+                .as("server"),
+            jsonObjectFrom(
+                eb
+                    .selectFrom("server_members")
+                    .whereRef("rooms.server_id", "=", "server_members.server_id")
+                    .where("server_members.user_id", "=", userId)
+                    .select("server_members.joined_at")
+            )
+                .as("member")
+        ])
+        .executeTakeFirst();
+
+    if (!room) return HttpErrorMessage.UnknownRoom;
+    if (!room.member) return HttpErrorMessage.MissingAccess;
+
+    if (file.options?.require_server_permissions?.server_owner) {
+        if (userId !== room.server!.owner_id) httpError(HttpErrorMessage.MissingAccess);
+    }
+
+    return {
+        server: room.server,
+        member: room.member,
+        get room() {
+            Object.assign(room, { server: undefined, member: undefined });
+            return room;
+        }
+    };
+}

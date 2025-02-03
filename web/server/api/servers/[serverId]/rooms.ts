@@ -13,8 +13,8 @@ const options = defineEndpointOptions({
     }
 });
 
-export default defineEndpoint(async ({ request, serverId }) => {
-    if (request.method === "POST") return createRoom(request, serverId);
+export default defineEndpoint(async ({ request, server }) => {
+    if (request.method === "POST") return createRoom(request, server.id);
     httpError(HttpErrorMessage.NotFound);
 }, options);
 
