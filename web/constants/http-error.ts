@@ -15,6 +15,7 @@ export const HttpErrorCode = {
 
     // unknown object - 10xxx
     UnknownAccount: 10_001,
+    UnknownInvite: 10_006,
 
     // validation issue - 50xxx
     MissingAccess: 50_001
@@ -37,6 +38,7 @@ export const HttpErrorMessage = {
 
     // unknown object - 10xxx
     UnknownAccount: "Unknown account",
+    UnknownInvite: "Unknown invite",
 
     // validation issue - 50xxx
     MissingAccess: "Missing access"

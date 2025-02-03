@@ -1,3 +1,4 @@
+import type { InviteTable } from "~/types/invites";
 import type { MessageTable } from "~/types/messages";
 import type { RoomTable } from "~/types/rooms";
 import type { ServerTable } from "~/types/server";
@@ -8,4 +9,5 @@ export interface Database {
     servers: ServerTable;
     rooms: RoomTable;
     messages: MessageTable;
+    invites: InviteTable;
 }

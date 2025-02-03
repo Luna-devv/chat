@@ -1,4 +1,6 @@
-type Endpoint = "server" | "room";
+import type { Context } from "hono";
+
+type Endpoint = "server" | "room" | undefined;
 
 interface FuncProps<EndpointType extends Endpoint, RequireAuth extends boolean> {
     request: Request;
@@ -11,6 +13,8 @@ interface FuncProps<EndpointType extends Endpoint, RequireAuth extends boolean> 
     userId: RequireAuth extends true
         ? number
         : null;
+
+    c: Context;
 }
 
 interface OptionProps<EndpointType extends Endpoint, RequireAuth extends boolean> {

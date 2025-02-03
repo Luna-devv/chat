@@ -56,7 +56,8 @@ for (const filename of apiFiles) {
                 request: c.req.raw,
                 serverId,
                 roomId,
-                userId
+                userId,
+                c
             })
             .catch((e) => e);
     });
