@@ -1,6 +1,8 @@
 import type { ColumnType, Selectable } from "kysely";
 import { z } from "zod";
 
+import type { ServerMember } from "./members";
+
 export interface InviteTable {
     code: string;
 
@@ -28,3 +30,15 @@ export type APIPostRoomInvitesBody = z.infer<typeof APIPostRoomInvitesBodySchema
 export type APIPostRoomInvitesResponse = PartialInvite;
 
 // GET /rooms/1/invites/abcdefgh
+// unused
+export type APIGetInviteResponse = Invite;
+
+// POST /rooms/1/invites/abcdefgh
+export const APIPostInviteBodySchema = z.object({
+    captcha_key: z.string()
+});
+
+export type APIPostInviteBody = z.infer<typeof APIPostInviteBodySchema>;
+export type APIPostInviteResponse = ServerMember & {
+    invite_room_id: number;
+};

@@ -42,11 +42,11 @@ async function getMessages(request: Request, roomId: number) {
 
     const messages = await db
         .selectFrom("messages")
+        .selectAll()
         .where("room_id", "=", roomId)
         .where("id", "<", data.before)
         .limit(data.limit)
         .orderBy("created_at desc")
-        .selectAll()
         .select((eb) => [
             jsonObjectFrom(
                 eb
