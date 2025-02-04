@@ -2,7 +2,7 @@ import Redis from "ioredis";
 
 import type { EventMap, GatewayMessage } from "~/types/gateway";
 
-const redis = new Redis();
+export const redis = new Redis();
 
 export function emitGatewayEvent<T extends keyof EventMap>(
     channel: `user:${number}` | `server:${number}`,

@@ -45,7 +45,6 @@ async function createUser(request: Request) {
     if (!flags.has(UserFlags.VerifiedEmail)) {
         requiredActions.push(UserAuthRequiredAction.VerifyEmail);
 
-        // need to prevent spamming somehow,,,
         void sendEmailVerificationEmail({
             to: data.email,
             username: user.username,

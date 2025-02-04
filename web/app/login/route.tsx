@@ -66,7 +66,7 @@ export default function Login() {
         }
 
         if (res.required_actions.includes(UserAuthRequiredAction.VerifyEmail)) return navigate("/verify-email");
-        void navigate("/app");
+        void navigate("/rooms");
     }
 
     return (

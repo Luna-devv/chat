@@ -33,7 +33,7 @@ function OpenEmails() {
     return (<>
         <AuthDescription>Open your email client to verify your email!</AuthDescription>
 
-        <div className="mt-4 flex gap-4">
+        <div className="mt-4 flex gap-2">
             <Button
                 asChild
                 className="w-1/2"
@@ -54,6 +54,10 @@ function OpenEmails() {
                     Proton Mail
                 </Link>
             </Button>
+        </div>
+
+        <div className="text-muted-foreground text-xs mt-2">
+            If you haven{"'"}t received the email yet, please try again in an hour from now.
         </div>
     </>);
 }
@@ -81,7 +85,7 @@ function Complete({ hash }: { hash: string; }) {
             return;
         }
 
-        void navigate("/app");
+        void navigate("/rooms");
     }
 
     return (<>

@@ -6,8 +6,9 @@ import { generateCookieHeaderFromJWT, verifyPassword } from "~/utils/auth";
 import { BitfieldManager } from "~/utils/bitfields";
 import { verifyCaptchaKey } from "~/utils/captcha";
 import { defineEndpoint } from "~/utils/define/endpoint";
+import { sendEmailVerificationEmail } from "~/utils/email";
 import { httpError } from "~/utils/http-error";
-import { session } from "~/utils/jwt";
+import { session, verifyemail } from "~/utils/jwt";
 
 export default defineEndpoint(async ({ request }) => {
     if (request.method === "POST") return loginUser(request);
@@ -36,7 +37,15 @@ async function loginUser(request: Request) {
     const requiredActions: UserAuthRequiredAction[] = [];
     const flags = new BitfieldManager(user.flags);
 
-    if (!flags.has(UserFlags.VerifiedEmail)) requiredActions.push(UserAuthRequiredAction.VerifyEmail);
+    if (!flags.has(UserFlags.VerifiedEmail)) {
+        requiredActions.push(UserAuthRequiredAction.VerifyEmail);
+
+        void sendEmailVerificationEmail({
+            to: data.email,
+            username: user.username,
+            token: verifyemail.sign({ user_id: user.id, email: user.email })
+        });
+    }
 
     return Response.json(
         {
