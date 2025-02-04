@@ -88,8 +88,6 @@ export function MessageInput() {
 
                     if (e.key !== "Enter" || e.shiftKey || filteredOptions.length || !focus) return;
                     e.preventDefault();
-                    console.log("post");
-                    return;
 
                     const message = request<APIPostRoomMessagesResponse>(
                         "post",
