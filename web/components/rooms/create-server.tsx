@@ -3,7 +3,7 @@ import { Turnstile, type TurnstileInstance } from "@marsidev/react-turnstile";
 import { ArrowLeftIcon, TriangleAlertIcon } from "lucide-react";
 import { type ReactNode, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
-import { redirect } from "react-router";
+import { useNavigate } from "react-router";
 
 import { Config } from "~/constants/config";
 import { request } from "~/lib/api";
@@ -53,7 +53,7 @@ export function CreateServerModal({
                 </DialogHeader>
                 {state === State.JoinServer
                     ? <JoinServer
-                        onSuccess={() => setState(State.JoinServer)}
+                        onSuccess={() => setOpen(false)}
                         onChange={setState}
                     />
                     : <CreateServer
@@ -77,6 +77,7 @@ function JoinServer({
     const captcha = useRef<TurnstileInstance | null>(null);
     const [invite, setInvite] = useState<string | null>();
     const [error, setError] = useState<string | null>();
+    const navigate = useNavigate();
 
     const form = useForm<APIPostInviteBody>({
         resolver: zodResolver(APIPostInviteBodySchema)
@@ -89,14 +90,12 @@ function JoinServer({
         captcha.current?.reset();
         setError(null);
 
-        console.log(res);
         if ("message" in res) {
             setError(res.message);
             return;
         }
 
-        console.log(`/rooms/${res.server_id}/${res.invite_room_id}`);
-        redirect(`/rooms/${res.server_id}/${res.invite_room_id}`);
+        void navigate(`/rooms/${res.server_id}/${res.invite_room_id}`);
         onSuccess();
     }
 
@@ -169,6 +168,7 @@ function CreateServer({
     onBack: () => unknown;
 }) {
     const captcha = useRef<TurnstileInstance | null>(null);
+    const navigate = useNavigate();
 
     const form = useForm<APIPostServersBody>({
         resolver: zodResolver(APIPostServersBodySchema)
@@ -186,6 +186,7 @@ function CreateServer({
             return;
         }
 
+        void navigate(`/rooms/${res.id}`);
         onSuccess();
     }
 
