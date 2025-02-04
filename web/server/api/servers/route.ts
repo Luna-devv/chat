@@ -1,5 +1,6 @@
 import { HttpErrorMessage } from "~/constants/http-error";
 import { db } from "~/db";
+import type { GatewayServer } from "~/types/server";
 import { APIPostServersBodySchema } from "~/types/server";
 import { verifyCaptchaKey } from "~/utils/captcha";
 import { defineEndpoint, defineEndpointOptions } from "~/utils/define/endpoint";
@@ -34,7 +35,19 @@ async function createServer(request: Request, userId: number) {
 
     if (!server) throw httpError();
 
-    void emitGatewayEvent(`user:${userId}`, "server_create", server);
+    const member = await db
+        .insertInto("server_members")
+        .values({
+            user_id: userId,
+            server_id: server.id
+        })
+        .returningAll()
+        .executeTakeFirst();
+
+    if (!member) throw httpError();
+
+    Object.assign(server, { rooms: [] });
+    void emitGatewayEvent(`user:${userId}`, "server_create", server as GatewayServer);
 
     return Response.json(server);
 }
