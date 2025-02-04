@@ -1,8 +1,7 @@
-import { jsonObjectFrom } from "kysely/helpers/postgres";
-
 import { HttpErrorMessage } from "~/constants/http-error";
 import { db } from "~/db";
 import { APIPostInviteBodySchema } from "~/types/invites";
+import type { GatewayServer } from "~/types/server";
 import { auth, via } from "~/utils/auth";
 import { verifyCaptchaKey } from "~/utils/captcha";
 import { defineEndpoint } from "~/utils/define/endpoint";
@@ -48,28 +47,37 @@ async function joinServer(request: Request, code: string) {
     const captcha = await verifyCaptchaKey(data.captcha_key, ip);
     if (!captcha) httpError(HttpErrorMessage.InvalidCaptcha);
 
-    const invite = await db
-        .selectFrom("invites")
-        .select(["server_id", "room_id"])
-        .where("code", "=", code)
-        .where((eb) =>
-            eb.or([
-                eb("expires_at", "is", null),
-                eb("expires_at", ">", new Date().toISOString())
-            ])
-        )
-        .select((eb) => [
-            jsonObjectFrom(
-                eb
-                    .selectFrom("servers")
-                    .whereRef("invites.server_id", "=", "servers.id")
-                    .selectAll()
+    const { invite, server, rooms } = await db.transaction().execute(async () => {
+        const invite = await db
+            .selectFrom("invites")
+            .select(["server_id", "room_id"])
+            .where("code", "=", code)
+            .where((eb) =>
+                eb.or([
+                    eb("expires_at", "is", null),
+                    eb("expires_at", ">", new Date().toISOString())
+                ])
             )
-                .as("server")
-        ])
-        .executeTakeFirst();
+            .executeTakeFirst();
 
-    if (!invite) throw httpError(HttpErrorMessage.UnknownInvite);
+        if (!invite) return { invite, server: null, rooms: [] };
+
+        const server = await db
+            .selectFrom("servers")
+            .selectAll()
+            .where("id", "=", invite.server_id)
+            .executeTakeFirst();
+
+        const rooms = await db
+            .selectFrom("rooms")
+            .selectAll()
+            .where("server_id", "=", invite.server_id)
+            .execute();
+
+        return { invite, server, rooms };
+    });
+
+    if (!invite || !server) throw httpError(HttpErrorMessage.UnknownInvite);
 
     const member = await db
         .insertInto("server_members")
@@ -85,7 +93,9 @@ async function joinServer(request: Request, code: string) {
 
     if (!member) throw httpError(); // will 500 if you are already in the server I guess,,,
 
-    void emitGatewayEvent(`user:${userId}`, "server_create", invite.server!);
+    // just dont ask...
+    Object.assign(server, { rooms });
+    void emitGatewayEvent(`user:${userId}`, "server_create", server as GatewayServer);
 
     Object.assign(member, { invite_room_id: invite.room_id });
     return Response.json(member);

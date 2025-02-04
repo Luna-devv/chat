@@ -1,7 +1,7 @@
 import type { ServerMember } from "./members";
 import type { Message } from "./messages";
 import type { Room } from "./rooms";
-import type { Server } from "./server";
+import type { GatewayServer, Server } from "./server";
 import type { CurrentUser } from "./users";
 
 import type { Awaitable } from ".";
@@ -31,7 +31,7 @@ export interface ReadyEvent {
     rooms: Room[];
 }
 
-export type ServerCreateEvent = Server;
+export type ServerCreateEvent = GatewayServer;
 export type ServerDeleteEvent = number;
 
 export type RoomCreateEvent = Room;

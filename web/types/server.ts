@@ -1,6 +1,8 @@
 import type { ColumnType, Generated, Selectable } from "kysely";
 import { z } from "zod";
 
+import type { Room } from "./rooms";
+
 export interface ServerTable {
     id: Generated<number>;
 
@@ -16,6 +18,10 @@ export interface ServerTable {
 }
 
 export type Server = Selectable<ServerTable>;
+
+export interface GatewayServer extends Server {
+    rooms: Room[];
+}
 
 // POST /servers
 export const APIPostServersBodySchema = z.object({

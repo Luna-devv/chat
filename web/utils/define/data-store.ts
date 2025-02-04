@@ -8,7 +8,7 @@ interface Props<T extends ObjectWithId> {
     items: T[];
 
     set: (items: T[]) => void;
-    add: (item: T) => void;
+    add: (...item: T[]) => void;
     remove: (itemId: number) => void;
 }
 
@@ -21,11 +21,11 @@ export function defineDataStore<T extends ObjectWithId>() {
                 items
             }));
         },
-        add: (item: T) => {
+        add: (...items: T[]) => {
             set((state) => ({
                 items: [
-                    ...state.items.filter((i) => i.id !== item.id),
-                    item
+                    ...state.items.filter((i) => !items.some((item) => i.id === item.id)),
+                    ...items
                 ]
             }));
         },

@@ -17,8 +17,13 @@ export const events = {
     },
 
     server_create: (server) => {
-        const { add } = useServerStore.getState();
-        add(server);
+        const { add: addRoom } = useRoomStore.getState();
+        addRoom(...server.rooms);
+
+        Object.assign(server, { rooms: undefined });
+
+        const { add: addServer } = useServerStore.getState();
+        addServer(server);
     },
     server_delete: (serverId) => {
         const { remove } = useServerStore.getState();
