@@ -90,11 +90,19 @@ func handleWebSocket(w http.ResponseWriter, r *http.Request) {
 	})
 
 	for {
-		_, _, err := ws.ReadMessage()
+		_, msg, err := ws.ReadMessage()
 		if err != nil {
 			log.Println("Connection closed for user:", session.Id)
 			break
 		}
+
+		var event events.Event
+		if err := json.Unmarshal(msg, &event); err != nil {
+			// Ignore non-JSON messages
+			continue
+		}
+
+		events.Handle(client, event)
 	}
 }
 
