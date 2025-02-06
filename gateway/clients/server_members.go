@@ -1,8 +1,8 @@
-package main
+package clients
 
 import "log"
 
-func addMemberToServer(userId int, serverId int) {
+func AddMemberToServer(userId int, serverId int) {
 	clients.RLock()
 	defer clients.RUnlock()
 
@@ -14,7 +14,7 @@ func addMemberToServer(userId int, serverId int) {
 	}
 }
 
-func removeMemberFromServer(userId int, serverId int) {
+func RemoveMemberFromServer(userId int, serverId int) {
 	clients.RLock()
 	defer clients.RUnlock()
 

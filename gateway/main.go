@@ -1,7 +1,9 @@
 package main
 
 import (
+	"chat/gateway/clients"
 	"chat/gateway/db"
+	"chat/gateway/events"
 	"chat/gateway/jwt"
 	"encoding/json"
 	"fmt"
@@ -9,7 +11,6 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
-	"sync"
 	"time"
 
 	"github.com/go-redis/redis/v8"
@@ -28,11 +29,6 @@ var (
 		},
 	}
 )
-
-var clients = struct {
-	sync.RWMutex
-	connected map[string]*Client
-}{connected: make(map[string]*Client)}
 
 func main() {
 	http.HandleFunc("/", handleWebSocket)
@@ -66,7 +62,7 @@ func handleWebSocket(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	client := &Client{
+	client := &clients.Client{
 		Conn:      ws,
 		UserId:    session.Id,
 		ServerIds: make(map[int]struct{}),
@@ -78,16 +74,14 @@ func handleWebSocket(w http.ResponseWriter, r *http.Request) {
 
 	conId := fmt.Sprintf("%d", time.Now().UnixMilli())
 
-	clients.Lock()
-	clients.connected[conId] = client
-	clients.Unlock()
+	clients.Add(conId, client)
 
 	log.Printf("User %d connected (con: %s)", session.Id, conId)
-	defer disconnectClient(conId)
+	defer clients.Disconnect(conId)
 
-	sendToClient(client, Event{
+	clients.SendToClient(client, events.Event{
 		Type: "ready",
-		Data: ReadyEventPayload{
+		Data: events.ReadyEventPayload{
 			User:               user,
 			CurrentUserMembers: members,
 			Servers:            servers,
@@ -115,7 +109,7 @@ func startRedisSubscription() {
 }
 
 func handleRedisMessage(msg *redis.Message) {
-	var event Event
+	var event events.Event
 	err := json.Unmarshal([]byte(msg.Payload), &event)
 	if err != nil {
 		log.Println("Failed to parse event:", err)
@@ -131,7 +125,7 @@ func handleRedisMessage(msg *redis.Message) {
 			return
 		}
 
-		broadcastToServer(serverId, event)
+		clients.BroadcastToServer(serverId, event)
 		return
 	}
 
@@ -147,16 +141,16 @@ func handleRedisMessage(msg *redis.Message) {
 	case "server_create":
 		serverId := event.Data.(map[string]interface{})["id"].(float64)
 
-		addMemberToServer(userId, int(serverId))
-		broadcastToUser(userId, event)
+		clients.AddMemberToServer(userId, int(serverId))
+		clients.BroadcastToUser(userId, event)
 
 	case "server_delete":
 		serverId := event.Data.(map[string]interface{})["id"].(float64)
 
-		removeMemberFromServer(userId, int(serverId))
-		broadcastToUser(userId, event)
+		clients.RemoveMemberFromServer(userId, int(serverId))
+		clients.BroadcastToUser(userId, event)
 
 	default:
-		broadcastToUser(userId, event)
+		clients.BroadcastToUser(userId, event)
 	}
 }

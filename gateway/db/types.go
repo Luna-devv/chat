@@ -38,18 +38,18 @@ type RoomTable struct {
 
 	Name string `json:"name"`
 
-	Type   int `json:"type"`
-	Flags   int64 `json:"flags"`
-	Position int  `json:"position"`
+	Type     int   `json:"type"`
+	Flags    int64 `json:"flags"`
+	Position int   `json:"position"`
 
-	ServerId   int `json:"server_id"`
+	ServerId     int  `json:"server_id"`
 	ParentRoomId *int `json:"parent_room_id"`
 
 	CreatedAt time.Time `json:"created_at"`
 }
 
 type ServerMemberTable struct {
-	ServerId   int `json:"server_id"`
+	ServerId int `json:"server_id"`
 	UserId   int `json:"user_id"`
 
 	JoinedAt time.Time `json:"joined_at"`

@@ -1,23 +1,16 @@
-package main
+package events
 
 import (
 	"chat/gateway/db"
-
-	"github.com/gorilla/websocket"
 )
 
-type Client struct {
-	Conn      *websocket.Conn
-	UserId    int
-	ServerIds map[int]struct{}
-}
-
-// Event struct represents a generic event
+// outgoing and incommig event
 type Event struct {
 	Type string      `json:"t"`
 	Data interface{} `json:"d"`
 }
 
+// outgoing
 type ReadyEventPayload struct {
 	User               db.UserTable           `json:"user"`
 	CurrentUserMembers []db.ServerMemberTable `json:"current_user_members"`
