@@ -17,10 +17,16 @@ func GetUser(userId int) (UserTable, error) {
 	return user, err
 }
 
-func GetServerMembersForUser(userId int)  ([]ServerMemberTable, error) {
+func GetServerMembers(serverId int) ([]ServerMemberTable, error) {
+	var members []ServerMemberTable
+	err := pgxscan.Select(context.Background(), db, &members, "SELECT * FROM server_members WHERE server_id=$1", serverId)
+
+	return members, err
+}
+
+func GetServerMembersForUser(userId int) ([]ServerMemberTable, error) {
 	var members []ServerMemberTable
 	err := pgxscan.Select(context.Background(), db, &members, "SELECT * FROM server_members WHERE user_id=$1", userId)
-	fmt.Println(members)
 
 	return members, err
 }

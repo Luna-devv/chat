@@ -17,3 +17,14 @@ type ReadyEventPayload struct {
 	Servers            []db.ServerTable       `json:"servers"`
 	Rooms              []db.RoomTable         `json:"rooms"`
 }
+
+type ServerMemberChunk struct {
+	ServerId int                    `json:"server_id"`
+	Members  []db.ServerMemberTable `json:"members"`
+	// chunk_index and chunk_count(?)
+}
+
+// incomming
+type RequestServerMembersEventData struct {
+	ServerId int `json:"server_id"`
+}
